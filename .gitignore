@@ -1,0 +1,33 @@
+# Environment & Secrets (NEVER COMMIT)
+.env
+.env.*
+*.env
+
+# Large binaries & Portable player executables (>90MB node.exe)
+mtm-player-*/
+*.exe
+*.dll
+
+# Upstream reference clone
+hve-core/
+
+# Dynamic Match & Run Artifacts
+logs/
+**/logs/
+*.log
+*.ndjson
+*.dashboard.html
+matches/
+**/matches/
+
+# Node dependencies & caches
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System & Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
