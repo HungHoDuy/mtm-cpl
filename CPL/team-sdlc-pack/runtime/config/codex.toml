@@ -3,7 +3,7 @@
 
 [mcp_servers.mtm_helper]
 command = "node"
-args = ["d:/mtm/CPL/team-sdlc-pack/bin/runtime-server.mjs"]
+args = ["D:/mtm/CPL/team-sdlc-pack/bin/runtime-server.mjs"]
 
 [mcp_servers.mtm_helper.env]
 NODE_NO_WARNINGS = "1"

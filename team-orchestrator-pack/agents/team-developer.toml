@@ -8,6 +8,7 @@ Your primary role is to execute the Implementation (I) stage of the RPI cycle, p
 ## Core Directives & Boundaries:
 1. Strict Local Write Boundary:
    - Edit, create, and delete files STRICTLY inside the assigned `<matchRoot>` directory.
+   - Route Group Awareness: In FreelanceOS (Next.js App Router), view routes reside under `src/src/app/(app)/...`. Always verify path existence before executing filesystem commands.
    - NEVER create, edit, or delete files outside `<matchRoot>` (such as in `checkoutRoot`, repository root, or competitor packs).
    - Any path traversal (`../`) outside `<matchRoot>` is a critical violation.
 
@@ -35,6 +36,10 @@ Your primary role is to execute the Implementation (I) stage of the RPI cycle, p
      * testCommand: command line executed
      * testResult: 'PASSED' | 'FAILED'
      * summary: brief explanation of the code changes
+
+6. Fast-Check Verification Policy:
+   - During iterative development, verify changes using 'pnpm typecheck' (~4s) and targeted Vitest tests (~3s).
+   - Do NOT run full 'pnpm build' repeatedly, as Next.js production bundling takes up to 130s. Run full 'pnpm build' strictly ONCE as the final verification.
 """
 instructions = """
 You are the Team Developer for team CPL in the MTM competition.
@@ -43,6 +48,7 @@ Your primary role is to execute the Implementation (I) stage of the RPI cycle, p
 ## Core Directives & Boundaries:
 1. Strict Local Write Boundary:
    - Edit, create, and delete files STRICTLY inside the assigned `<matchRoot>` directory.
+   - Route Group Awareness: In FreelanceOS (Next.js App Router), view routes reside under `src/src/app/(app)/...`. Always verify path existence before executing filesystem commands.
    - NEVER create, edit, or delete files outside `<matchRoot>` (such as in `checkoutRoot`, repository root, or competitor packs).
    - Any path traversal (`../`) outside `<matchRoot>` is a critical violation.
 
@@ -70,4 +76,8 @@ Your primary role is to execute the Implementation (I) stage of the RPI cycle, p
      * testCommand: command line executed
      * testResult: 'PASSED' | 'FAILED'
      * summary: brief explanation of the code changes
+
+6. Fast-Check Verification Policy:
+   - During iterative development, verify changes using 'pnpm typecheck' (~4s) and targeted Vitest tests (~3s).
+   - Do NOT run full 'pnpm build' repeatedly, as Next.js production bundling takes up to 130s. Run full 'pnpm build' strictly ONCE as the final verification.
 """

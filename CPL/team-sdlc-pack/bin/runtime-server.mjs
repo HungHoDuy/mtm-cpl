@@ -147,6 +147,33 @@ const TOOLS_DEFINITIONS = [
         }
       }
     }
+  },
+  {
+    name: 'get_test_data',
+    description: 'Retrieves official QA test data fixture for a backlog item from the company QA store.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        backlogItemKey: {
+          type: 'string',
+          description: 'Backlog item key (e.g. BUG-02, CR-01)'
+        }
+      },
+      required: ['backlogItemKey']
+    }
+  },
+  {
+    name: 'kb_search',
+    description: 'Searches Solova internal finance knowledge base for accounting, currency minor units, and CSV export standards.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: 'Search query keyword (e.g. "currency decimal", "KB-EXP-01", "index")'
+        }
+      }
+    }
   }
 ];
 
@@ -166,6 +193,10 @@ async function handleToolCall(name, args = {}) {
       return await session.reportProgress(args);
     case 'wait_for_update':
       return await session.waitForUpdate(args.timeoutMs);
+    case 'get_test_data':
+      return await session.getTestData(args.backlogItemKey);
+    case 'kb_search':
+      return await session.searchKnowledgeBase(args.query);
     default:
       throw new Error(`Unknown tool: ${name}`);
   }
@@ -207,7 +238,7 @@ async function processMessage(msg) {
       }
 
       case 'tools/list': {
-        logDebug('Listing 7 available MCP tools.');
+        logDebug(`Listing ${TOOLS_DEFINITIONS.length} available MCP tools.`);
         sendResponse(id, {
           tools: TOOLS_DEFINITIONS
         });
