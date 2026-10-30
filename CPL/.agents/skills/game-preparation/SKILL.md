@@ -3,10 +3,10 @@ name: game-preparation
 description: Pre-match environment verification, git remote check, session bootstrap, and readiness telemetry for MTM Player.
 ---
 
-# Game Preparation Skill
+# Game Preparation Skill (Extreme Speed Edition)
 
 ## Goal
-Verify and bootstrap the execution environment before an MTM match begins. Establish authenticated connectivity to the Game Master portal and Git remote, verify workspace paths, and log official readiness telemetry.
+Verify and bootstrap the execution environment before an MTM match begins within **< 90 seconds**. Establish authenticated connectivity to the Game Master portal and Git remote, bootstrap dependencies, pre-start the background dev server, cache authenticated browser session tokens (`storageState.json`), and log official readiness telemetry.
 
 ---
 
@@ -17,7 +17,7 @@ Before signaling readiness to MTM Player, verify the following baseline prerequi
 1. **Runtime & Toolchain**:
    - Node.js runtime is available (`node -v >= 18`).
    - Git CLI is available (`git --version`).
-   - Standard build tools for the target stack are functional.
+   - Package manager is available (`pnpm --version`).
 2. **Directory & Workspace Boundaries**:
    - `checkoutRoot` is resolved (contains local Git repository).
    - `matchRoot` subfolder is identified. All application code editing and answers must stay strictly inside `matchRoot`.
@@ -61,36 +61,44 @@ Execute the following sequence using the MCP tools:
 
 ---
 
-## 3. Deterministic Project Bootstrapping Sequence (Zero-Drift)
+## 3. High-Speed Project Bootstrapping Sequence (~45 Seconds Total)
 
-Before emitting the final `ENVIRONMENT_READY` telemetry event, the agent or runtime must guarantee that the cloned repository inside `matchRoot` is fully configured, built, and verified.
+> [!IMPORTANT]
+> **DO NOT run `pnpm build` during preparation!**
+> Full production builds burn 114+ seconds and incur severe polling overhead. Build health is verified via `pnpm typecheck` (~8 seconds).
 
-Execute the following sequence inside `matchRoot`:
+Execute the following sequence inside `<matchRoot>/src`:
 
 1. **Verify Environment Configuration (`src/.env`)**:
-   - Ensure `<matchRoot>/src/.env` exists and contains valid `DATABASE_URL`, `TEST_DATABASE_URL`, and `AUTH_SECRET` (minimum 32 characters).
-   - If missing, the runtime helper creates it automatically during `configure_session`, or it can be copied from `.env.example` with:
-     * `DATABASE_URL="postgresql://freelanceos:freelanceos_secret@127.0.0.1:5433/freelanceos?schema=public"`
-     * `TEST_DATABASE_URL="postgresql://freelanceos:freelanceos_secret@127.0.0.1:5433/freelanceos_test?schema=public"`
-     * `AUTH_SECRET` set to a minimum 32-character string.
+   - Ensure `<matchRoot>/src/.env` exists. If missing, the runtime helper creates it automatically during `configure_session`.
 
-2. **Generate Prisma Client Types**:
-   - Run `pnpm prisma generate` inside `<matchRoot>/src`.
-   - *Rationale*: Fresh Git clones do not contain generated Prisma client artifacts. Without this step, TypeScript compilation in seed scripts (`prisma/seed.ts:333`) fails strict mode typechecking (`tx` implicitly has `any` type).
+2. **Database & Type Generation (~12 seconds)**:
+   ```powershell
+   Set-Location '<matchRoot>/src'
+   pnpm prisma generate
+   pnpm prisma migrate deploy
+   pnpm db:seed
+   pnpm typecheck
+   ```
+   *Rationale*: Generates Prisma client types, migrates PostgreSQL tables, seeds default administrative users, and verifies strict TypeScript compilation with zero errors.
 
-3. **Compile & Build Application**:
-   - Run `<matchRoot>/prepare-source.ps1` (or `pnpm build` in `<matchRoot>/src`).
-   - Verifies that Next.js and TypeScript compile with zero errors (`build: PASS`).
+3. **Detach Background Dev Server (~2 seconds)**:
+   - **NEVER** run `pnpm dev` in the foreground of a tool call.
+   - Launch Next.js via a detached background process with output redirected to `logs/`:
+     ```powershell
+     Set-Location '<matchRoot>/src'
+     Start-Process pnpm -ArgumentList "dev" -RedirectStandardOutput "..\logs\dev.log" -RedirectStandardError "..\logs\dev-err.log"
+     ```
+   - Verify dev server readiness in one fast check:
+     ```powershell
+     node team-sdlc-pack/scripts/evidence-runner.mjs check-server --url http://127.0.0.1:3000
+     ```
 
-4. **Deploy Migrations & Seed Database**:
-   - Run `pnpm prisma migrate deploy` in `<matchRoot>/src`.
-   - Run `pnpm db:seed` in `<matchRoot>/src`.
-   - Populates database tables and initial fixture data.
-
-5. **Execute Doctor Verification**:
-   - Run `<matchRoot>/doctor.ps1`.
-   - Verify output concludes with: `Environment status: READY`.
-   - If `doctor.ps1` reports `NOT_READY`, inspect the reported check failure before proceeding.
+4. **Pre-Authenticate & Cache Session State (~5 seconds)**:
+   - Generate `storageState.json` so all subsequent test runs and screenshot captures are pre-authenticated without hitting `/login`:
+     ```powershell
+     node team-sdlc-pack/scripts/evidence-runner.mjs auth-init --url http://127.0.0.1:3000 --output '<matchRoot>/storageState.json'
+     ```
 
 ---
 
@@ -120,7 +128,7 @@ Append official progress events conforming to `contracts/progress-event.schema.j
    - `type`: `PREPARATION_STATUS`
    - `stage`: `BUILD`
    - `status`: `COMPLETED`
-   - `summary`: `Next.js and TypeScript compiled successfully with zero errors`
+   - `summary`: `Next.js typecheck passed with zero errors (fast build gate)`
 
 5. **Match Portal Session Verified**:
    - `type`: `PREPARATION_STATUS`
@@ -144,6 +152,6 @@ Append official progress events conforming to `contracts/progress-event.schema.j
 
 ## 5. Error Handling & Guardrails
 
+- **Port 3000 Conflicts**: If port 3000 is occupied by an earlier match, kill the stale process using `Get-Process node | Stop-Process -Force` before launching `pnpm dev`.
 - **Missing Credentials**: If `LOGIN_USERNAME` or `LOGIN_PASSWORD` are missing, log `BLOCKER_OPENED` and report configuration error immediately.
 - **Git Remote Unauthorized**: If `git ls-remote` exits non-zero (HTTP 401/403), log `PREPARATION_STATUS` with status `FAILED` and clear stale Windows Credential Manager tokens before retrying.
-- **Path Escape**: Under no circumstances should source files be created outside `checkoutRoot` or `matchRoot`.

@@ -100,7 +100,7 @@ async function runTests() {
     console.log('\n--- Test 3: List Tools (tools/list) ---');
     const listRes = await sendRequest('tools/list');
     const tools = listRes.result?.tools || [];
-    assert(tools.length === 9, `Server exposed exactly 9 tools (found ${tools.length})`);
+    assert(tools.length === 10, `Server exposed exactly 10 tools (found ${tools.length})`);
 
     const expectedTools = [
       'configure_session',
@@ -108,6 +108,7 @@ async function runTests() {
       'refresh_match',
       'start_work',
       'submit_work',
+      'pack_submission',
       'report_progress',
       'wait_for_update',
       'get_test_data',
@@ -701,6 +702,26 @@ async function runTests() {
 
     await new Promise(resolve => mockCompanyMcpServer.close(resolve));
     fs.rmSync(mockMcpRoot, { recursive: true, force: true });
+
+    // Test 17: Explicit progressLogFile & teamSdlcPackWorkspace resolution
+    console.log('\n--- Test 17: Explicit progressLogFile Resolution ---');
+    const customMatchId = `TEST_LOG_${Date.now().toString(36).toUpperCase()}`;
+    const customLogFile = path.resolve(packRoot, 'logs', `${customMatchId}.custom.ndjson`);
+    const confLogRes = await sendRequest('tools/call', {
+      name: 'configure_session',
+      arguments: {
+        descriptor: {
+          matchId: customMatchId,
+          progressLogFile: customLogFile,
+          workingDirectory: packRoot
+        }
+      }
+    });
+    assert(!confLogRes.isError, 'configure_session with custom log file executed without errors');
+    const confLogData = JSON.parse(confLogRes.result.content[0].text);
+    assert(confLogData.progressLogFile === customLogFile, `progressLogFile honored explicit path (${confLogData.progressLogFile})`);
+    assert(fs.existsSync(customLogFile), `Custom log file created at: ${customLogFile}`);
+    fs.rmSync(customLogFile, { force: true });
 
   } finally {
     child.kill();

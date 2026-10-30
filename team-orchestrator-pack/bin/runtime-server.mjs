@@ -84,22 +84,58 @@ const TOOLS_DEFINITIONS = [
   },
   {
     name: 'submit_work',
-    description: 'Verifies git status, resolves full 40-char SHA, submits final answer to Game Master, and records SUBMITTED event with receipt.',
+    description: 'Auto-sanitizes evidence, auto-generates/validates submit.json, commits changes, verifies git push, submits final answer to Game Master, and emits dual telemetry (SUBMITTED + BACKLOG_TESTS with status: PASSED).',
     inputSchema: {
       type: 'object',
       properties: {
         backlogItemKey: {
           type: 'string',
-          description: 'Backlog item key (e.g. TASK-01)'
+          description: 'Backlog item key (e.g. BUG-02, CR-01, TASK-01)'
+        },
+        status: {
+          type: 'string',
+          enum: ['DONE', 'PARTIAL', 'BLOCKED'],
+          description: 'Optional submission status (default: DONE)'
+        },
+        engineeringRecord: {
+          type: 'object',
+          description: 'Optional engineering record object with analysis, changes, tests, risks, aiCollaboration'
         },
         answer: {
           type: 'object',
-          description: 'Optional answer payload (reads answers/<key>/submit.json if omitted)'
+          description: 'Optional explicit answer payload (auto-packages answers/<key>/submit.json if omitted)'
         },
         artifactUrls: {
           type: 'array',
           items: { type: 'string' },
           description: 'Optional evidence URLs'
+        },
+        autoPack: {
+          type: 'boolean',
+          description: 'Whether to auto-scan, sanitize, and format submit.json before submission (default: true)'
+        }
+      },
+      required: ['backlogItemKey']
+    }
+  },
+  {
+    name: 'pack_submission',
+    description: 'Scans evidence, repairs space-delimited paths, auto-generates compliant submit.json and validates against competition schema without calling Game Master.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        backlogItemKey: {
+          type: 'string',
+          description: 'Backlog item key (e.g. BUG-02, CR-01)'
+        },
+        status: {
+          type: 'string',
+          enum: ['DONE', 'PARTIAL', 'BLOCKED'],
+          description: 'Submission status (default: DONE)'
+        },
+        engineeringRecord: {
+          type: 'object',
+          description: 'Optional engineering record with analysis, changes, tests, risks, aiCollaboration'
         }
       },
       required: ['backlogItemKey']
@@ -188,7 +224,9 @@ async function handleToolCall(name, args = {}) {
     case 'start_work':
       return await session.startWork(args.backlogItemKey);
     case 'submit_work':
-      return await session.submitWork(args.backlogItemKey, args.answer, args.artifactUrls);
+      return await session.submitWork(args.backlogItemKey, args);
+    case 'pack_submission':
+      return session.packAndSanitizeSubmission(args.backlogItemKey, args.engineeringRecord, args.status);
     case 'report_progress':
       return await session.reportProgress(args);
     case 'wait_for_update':

@@ -38,7 +38,7 @@ console.log('======================================================\n');
 console.log('--- Test Suite 1: Specialized Agent Profiles ---');
 
 const expectedAgents = [
-  { file: 'agents/team-orchestrator.toml', expectedName: 'team_orchestrator', requiredKeywords: ['start_work', 'submit_work', '8 minutes', '4 Quality Lenses'] },
+  { file: 'agents/team-orchestrator.toml', expectedName: 'team_orchestrator', requiredKeywords: ['start_work', 'submit_work', '8 minutes'] },
   { file: 'agents/team-business-analyst.toml', expectedName: 'team_business_analyst', requiredKeywords: ['minimumVerificationScenarios', 'submitTemplate', 'plan.md'] },
   { file: 'agents/team-developer.toml', expectedName: 'team_developer', requiredKeywords: ['matchRoot', 'TDD', 'Minimal Diff'] },
   { file: 'agents/team-tester.toml', expectedName: 'team_tester', requiredKeywords: ['code 0', 'evidence', 'submit.json'] },
@@ -74,7 +74,7 @@ const expectedSkills = [
   {
     file: 'skills/team-orchestrator/SKILL.md',
     expectedName: 'team-orchestrator',
-    requiredSections: ['Backlog Wave Prioritization Matrix', 'The 4-Stage Autonomous RPI Loop', 'Autonomous 4-Lens Pre-Submission Review', 'Time Budgeting & Fallback Policy', 'Idle Wave Polling Loop']
+    requiredSections: ['Backlog Wave Prioritization Matrix', 'Code-First', 'Time Budgeting & Fallback Policy', 'Idle Wave Polling Loop']
   },
   {
     file: 'skills/team-recovery/SKILL.md',

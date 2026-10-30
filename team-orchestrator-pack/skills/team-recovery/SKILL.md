@@ -78,3 +78,31 @@ When an incident occurs and is recovered, log the event for grader audit complia
      "summary": "TASK-01 submission recovered successfully with receiptId: rcpt_12345"
    }
    ```
+
+---
+
+## 5. Transition to Active Game Execution (Crucial Anti-Deadlock Rule)
+
+When server state reconciliation confirms the current backlog item is `CLOSED`, expired, or rejected:
+1. Reconcile the closed item via MCP tool `report_progress`:
+   ```javascript
+   report_progress({
+     event: {
+       type: "BACKLOG_STATUS",
+       backlogId: "<id>",
+       title: "<title>",
+       status: "BLOCKED",
+       revision: null,
+       receiptId: null,
+       summary: "Item confirmed CLOSED on Game Master; transitioning to next open backlog item."
+     }
+   })
+   ```
+   **CRITICAL**: DO NOT append manually to `progress.ndjson` using PowerShell! Always use `report_progress`.
+2. **DO NOT STOP OR EXIT YOUR TURN**. Leaving the turn idle causes MTM Player to interpret the orchestrator as crashed and trigger an endless restart loop.
+3. Immediately transition to `team-orchestrator` active gameplay:
+   - Call `refresh_match()`.
+   - Inspect open items and select the highest-value `OPEN` item (e.g. `CR-01` with 300 pts, or `BUG-01` with 200 pts).
+   - Call `start_work({ backlogItemKey: "<selectedItem>" })` in the **exact same turn**.
+   - Proceed through Stage 2 (Plan & Baseline Evidence) and Stage 3 (Implementation) without pausing.
+
