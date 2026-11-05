@@ -1,0 +1,32 @@
+{
+  "testResults": [
+    {
+      "id": "BUG-02-TC-01",
+      "result": "PASS",
+      "evidence": [
+        "evidence/tc-01-vnd-invoice.png",
+        "evidence/currency-report.txt"
+      ]
+    }
+  ],
+  "schemaVersion": 1,
+  "backlogId": "BUG-02",
+  "status": "DONE",
+  "evidenceFiles": [
+    "evidence/tc-01-vnd-invoice.png",
+    "evidence/currency-report.txt"
+  ],
+  "engineeringRecord": {
+    "analysis": "Root cause identified and resolved for BUG-02. Component logic aligned with requirements.",
+    "changes": [
+      "Applied minimal code modification in src/ to fulfill verification scenarios."
+    ],
+    "tests": [
+      "Official verification checks and TypeScript checks passed. Evidence captured in evidence/."
+    ],
+    "risks": [
+      "None identified; changes scoped strictly to targeted logic."
+    ],
+    "aiCollaboration": "Single orchestrator diagnosed, implemented, verified and packaged solution autonomously."
+  }
+}
