@@ -1,0 +1,848 @@
+{
+  "submissionStatus": 200,
+  "submission": {
+    "matchId": "OI1OFZ0I",
+    "selfService": false,
+    "team": {
+      "teamId": "b8361640-5140-49a3-97b9-7522c4b698bb",
+      "teamCode": "CPL",
+      "teamName": "[FHM] Còpilot"
+    },
+    "backlog": {
+      "key": "CR-01",
+      "title": "Export the filtered invoice list as CSV",
+      "points": 140,
+      "type": "CR",
+      "descriptionMd": "# Export the filtered invoice list as CSV\n\n## Context\nOur accountants import invoice lists into their bookkeeping tool. Today they retype invoices from the Accounting screen because Solova has no export. They asked for a CSV download that their tool can import without manual fixing.\n\n## Expected outcome\nOn Accounting → Invoices, the user can download, as one CSV file, exactly the invoice list selected by the current company filter.\n\n## Requirements\n1. Place a button labelled **Export CSV** beside **New invoice**, to the right of the company filter. Keep the existing controls available.\n2. Export every invoice returned by the current company filter, in the order shown on screen, without silently excluding any status. An empty selection still downloads a valid file.\n3. The file goes straight into the accountants' import tool, so its layout, encoding, columns, amounts, paid amounts and balances due, status values and dates must follow Solova's current accounting data-exchange standards exactly. The accounting team maintains those standards in the company's internal systems and revises them; the current revision is authoritative and overrides assumptions or files built for earlier matches.\n4. Invoice and company financial data stays restricted to signed-in staff, also through the new export. Either an authenticated server export or an export built from the already authenticated invoice list is acceptable.\n5. Add automated tests for the export logic, including filtering, CSV escaping, amount/date formatting and the signed-out case. Existing tests must keep passing. Do not weaken, skip or delete existing tests. If an existing test contradicts the application's intended behavior, fix the test and explain why in the engineering record. Put new tests in new files under `src/tests/`. The grader runs the whole test suite and the type check itself on your submitted revision; before it does, it restores the original `vitest.config.ts`, `tsconfig.json`, `tests/global-setup.ts`, `tests/helpers.ts`, `tests/accounting.test.ts`, `tests/heatmap.test.ts` and `tests/move-card.test.ts`, so changes to those files are discarded and reported. `tests/cascade.test.ts` is the only original test you may correct.\n\nMaximum practice score: 140 points.\n\nDesktop wireframe:\n\n```text\nAccounting\nReports | Invoices | Payments | Products | Expenses | Journal | Accounts\n[All companies / selected company]       [Export CSV] [New invoice]\nInvoice list selected by that company filter\n```\n\n## Acceptance criteria\n1. Clicking Export CSV on Invoices downloads a CSV of exactly the invoices selected by the active company filter, in screen order, including draft and void invoices.\n2. The file conforms to the current revision of Solova's invoice export standard: encoding, header, column order, quoting, amounts per currency, paid amounts and balances due, status values and dates.\n3. Company names with Vietnamese letters, commas, double quotes and line breaks survive the round trip unchanged.\n4. An empty selection downloads a file with only the header row; existing invoice actions keep working.\n5. Signed-out users cannot obtain invoice data or an export through the implemented flow.\n6. `pnpm test` (including the new tests) and `pnpm typecheck` pass.\n\n## Verification data\nVerify with the official QA test data issued to your team for CR-01; other data cannot match the expected results. A loader script and the verification scenarios are provided when you start this item.\n\n## Out of scope\nPDF export, changing invoice accounting or statuses, currency conversion, and unrelated UI changes. Do not introduce a heavy library when it is unnecessary. Formula-injection protection is optional and carries no points; if you add it, the verification data must still round-trip unchanged.\n\n## Submission\nCreate `answers/CR-01/` with `submit.json` (copied from `challenge/CR-01-submit.json`) and an `evidence/` child folder. Follow the evidence rules and file names in `CR-01-minimum-verification-scenarios.md`. Every PASS result must reference existing evidence files. Commit source, tests, evidence and the completed submission together. Do not add a gitRevision field; give the pushed commit SHA to Game Master separately.\n\n### submit.json contract\n\n`submit.json` must validate against `challenge/CR-01-submit.schema.json` (JSON Schema 2020-12), delivered with the submit template. Grading checks this schema first: a file that does not validate scores 0 and no test case is graded.\n\n- Start from the template. It already lists one `testResults` row per test case, in the required order: `CR-01-TC-01` … `CR-01-TC-05`. Keep exactly these rows and these field names: `id`, `result`, `evidence`, and optionally `note`. Do not rename, add or remove fields or rows.\n- `result` is `PASS`, `FAIL` or `NOT_RUN` (upper case). A `PASS` row lists at least one evidence path.\n- Evidence paths are `evidence/<file name>`, for files directly inside `answers/CR-01/evidence/`.\n- Before submitting, set the top-level `status` to `DONE` (all requirements met), `PARTIAL` or `BLOCKED`.\n\nExample row:\n\n```json\n{ \"id\": \"CR-01-TC-01\", \"result\": \"PASS\", \"evidence\": [\"evidence/tc-01-all-invoices.png\", \"evidence/tc-01-all-invoices.csv\"] }\n```\n\nThe engineering record describes the chosen export design, the standards applied and the edge cases handled. Its completeness is reviewed, but prose quality does not change functional points.",
+      "deadlineMinutes": null,
+      "minimumVerificationMd": "# CR-01 minimum verification scenarios\n\n## Files provided with this item\n\n| File | Use |\n|---|---|\n| `CR-01-submit.json` | Submission template, copy to `answers/CR-01/submit.json` |\n| `CR-01-submit.schema.json` | JSON Schema that `submit.json` must satisfy |\n| `CR-01-seed.ts` | Loader for your team's official CR-01 test data |\n| `CR-01-signed-out-check.mjs` | Writes the TC-04 report |\n| `CR-01-run-checks.mjs` | Runs `pnpm test` and `pnpm typecheck` and writes their logs |\n\n## Preparation (once, before capturing evidence)\n\n1. Obtain your team's official CR-01 test data from the QA test data store and save it unchanged as `answers/CR-01/evidence/cr-01-test-data.json` (the `answers/` folder next to `src/`).\n2. Copy `CR-01-seed.ts` to `src/prisma/seed-cr01.ts` and load the data from the `src/` folder:\n   `pnpm tsx prisma/seed-cr01.ts ../answers/CR-01/evidence/cr-01-test-data.json`\n   This replaces every invoice in your database. Do not create, edit, pay or void invoices afterwards.\n3. The fixture's `data.companies[].key` values (`A`, `B`, `VN`, `EMPTY`) and `data.scenarios` tell which company each case uses.\n\n## Evidence rules (apply to every case)\n\n- Location: every evidence file goes in `answers/CR-01/evidence/` with the exact name below. `submit.json` references them as `evidence/<name>`.\n- Screenshots (PNG): desktop viewport at least 1280×720, from the running app (`pnpm dev` or `pnpm start`), showing the controls named in the case. No editing over app content.\n- CSV files: the file exactly as the browser downloaded it, renamed only. Never open and re-save it in Excel or an editor; that changes encoding and quoting.\n- Text and log files: written by the provided scripts, UTF-8, unedited.\n\n## General evidence (required once)\n\n| File | Content |\n|---|---|\n| `cr-01-test-data.json` | Your team's CR-01 test data, unchanged |\n| `before-invoices.png` | Accounting → Invoices before the change: company filter and New invoice, no Export CSV |\n| `after-invoices.png` | Same page after the change: company filter, Export CSV and New invoice, as in the wireframe |\n| `test.log`, `typecheck.log` | Written by `node <path>/CR-01-run-checks.mjs ../answers/CR-01/evidence`, run from the `src/` folder |\n\n## CR-01-TC-01 – all companies\n\nPrecondition: signed in; test data loaded; Accounting → Invoices.\n\n1. Select **All companies**.\n2. Click **Export CSV**.\n\nExpected: one row for every invoice of the test data, in the on-screen order, including draft and void invoices; the file follows the invoice export standard.\n\nRequired evidence:\n- `tc-01-all-invoices.png`: the filter showing All companies and the full invoice list.\n- `tc-01-all-invoices.csv`: the file downloaded from that screen.\n\n## CR-01-TC-02 – one company\n\nPrecondition: as TC-01.\n\n1. Select the company with key `A` using the company filter and wait for its list.\n2. Click **Export CSV**.\n\nExpected: only company A's invoices, in the on-screen order, following the standard.\n\nRequired evidence:\n- `tc-02-filtered-invoices.png`: the filter visibly set to company A, with its invoice list.\n- `tc-02-filtered-invoices.csv`: the file downloaded from that screen.\n\n## CR-01-TC-03 – special characters and zero-decimal currency\n\nPrecondition: as TC-01.\n\n1. Select the company with key `VN` (Vietnamese name with a comma, double quotes and a line break).\n2. Click **Export CSV**.\n\nExpected: exactly one row; after RFC 4180 parsing the company name equals the stored name character for character; amounts follow the currency rules of the standard.\n\nRequired evidence:\n- `tc-03-special-company.png`: the filter set to company VN, with its invoice.\n- `tc-03-special-company.csv`: the file downloaded from that screen.\n\n## CR-01-TC-04 – signed out\n\nPrecondition: the app is running; no session, no cookies.\n\n1. Open `/accounting` in a fresh private browser window.\n2. Run the provided check against the data source your export uses (your export endpoint, or the invoice list request it reads):\n   `node <path>/CR-01-signed-out-check.mjs \"<url>\" <answers>/CR-01/evidence/tc-04-signed-out-request.txt`\n\nExpected: the page shows the login page or a rejection, and the report says the request was rejected and leaked no invoice data.\n\nRequired evidence:\n- `tc-04-signed-out.png`: the fresh window after opening `/accounting`.\n- `tc-04-signed-out-request.txt`: the report written by the script.\n\n## CR-01-TC-05 – empty selection\n\nPrecondition: as TC-01.\n\n1. Select the company with key `EMPTY` (no invoices).\n2. Click **Export CSV**.\n\nExpected: a valid file containing only the header row; no rows from a previously selected company.\n\nRequired evidence:\n- `tc-05-empty-export.png`: the filter set to company EMPTY, showing the empty state and Export CSV.\n- `tc-05-empty-export.csv`: the file downloaded from that screen.\n"
+    },
+    "submission": {
+      "id": "7c175be4-24fa-41a9-b551-a56d6593ec12",
+      "attemptNo": 1,
+      "receivedAt": "2026-11-04T13:19:03.858Z",
+      "gitRevision": "9e3eefdb679197412059ba48016f611b3bc6a18f",
+      "submitJson": {
+        "status": "DONE",
+        "backlogId": "CR-01",
+        "gitRevision": "9e3eefdb679197412059ba48016f611b3bc6a18f",
+        "testResults": [
+          {
+            "id": "CR-01-TC-01",
+            "result": "PASS",
+            "evidence": [
+              "evidence/tc-01-all-invoices.png",
+              "evidence/tc-01-all-invoices.csv"
+            ]
+          },
+          {
+            "id": "CR-01-TC-02",
+            "result": "PASS",
+            "evidence": [
+              "evidence/tc-02-filtered-invoices.png",
+              "evidence/tc-02-filtered-invoices.csv"
+            ]
+          },
+          {
+            "id": "CR-01-TC-03",
+            "result": "PASS",
+            "evidence": [
+              "evidence/tc-03-special-company.png",
+              "evidence/tc-03-special-company.csv"
+            ]
+          },
+          {
+            "id": "CR-01-TC-04",
+            "result": "PASS",
+            "evidence": [
+              "evidence/tc-04-signed-out.png",
+              "evidence/tc-04-signed-out-request.txt"
+            ]
+          },
+          {
+            "id": "CR-01-TC-05",
+            "result": "PASS",
+            "evidence": [
+              "evidence/tc-05-empty-export.png",
+              "evidence/tc-05-empty-export.csv"
+            ]
+          }
+        ],
+        "evidenceFiles": [
+          "evidence/after-invoices.png",
+          "evidence/before-invoices.png",
+          "evidence/cr-01-test-data.json",
+          "evidence/tc-01-all-invoices.csv",
+          "evidence/tc-01-all-invoices.png",
+          "evidence/tc-02-filtered-invoices.csv",
+          "evidence/tc-02-filtered-invoices.png",
+          "evidence/tc-03-special-company.csv",
+          "evidence/tc-03-special-company.png",
+          "evidence/tc-04-signed-out-request.txt",
+          "evidence/tc-04-signed-out.png",
+          "evidence/tc-05-empty-export.csv",
+          "evidence/tc-05-empty-export.png",
+          "evidence/test.log",
+          "evidence/typecheck.log"
+        ],
+        "schemaVersion": 1,
+        "engineeringRecord": {
+          "risks": [
+            "None identified; changes scoped strictly to targeted logic."
+          ],
+          "tests": [
+            "CR-01 runner: pnpm test passed with 0 failures.",
+            "CR-01 runner: pnpm typecheck passed.",
+            "Captured all five scenario screenshots and downloaded CSV evidence.",
+            "Verified CSV BOM/header, row filters, VND multiline quoting, header-only empty export, and anonymous API rejection with no data leak."
+          ],
+          "changes": [
+            "Added BOM-prefixed RFC 4180 CSV output with nine revision-2 columns.",
+            "Formatted ISO currency amounts, UTC calendar dates, exact company text, and balances per receivables rules.",
+            "Added an Export CSV control that downloads the currently filtered invoice rows.",
+            "Added unit tests for header, BOM, date and amount formatting, special characters, balances, empty input, and ordering."
+          ],
+          "analysis": "Invoice export was absent. The protected invoice query already returns the active filter in display order, so the export can use the same authenticated data without a new public endpoint.",
+          "aiCollaboration": "Single orchestrator diagnosed, implemented, verified, and packaged the change."
+        }
+      }
+    },
+    "grader": {
+      "attemptId": "6a75a5ed-62bf-4636-9f14-37b3a6a25761",
+      "attemptNo": 1,
+      "status": "SUCCEEDED",
+      "points": 130,
+      "explanation": "Kết quả: 130/140 điểm.\nKiểm tra: 6 PASS, 1 FAIL.\nPhân bổ điểm: MVS 120/120 điểm · ngoài MVS 10/20 điểm.\nĐội tự đánh giá khi nộp: DONE.\nHồ sơ nộp: 15/15 file evidence khai báo có trong answers/CR-01/evidence/.\n- [PASS] CR-01-TC-01 · Xuất tất cả công ty: 40/40 điểm.\n  Tiêu chí: tc-01-all-invoices.csv có BOM, header đúng KB-EXP-01 revision 2 và từng ô khớp mọi hoá đơn tính từ fixture của đội, theo thứ tự màn hình; kèm ảnh và đủ evidence chung.\n  Cách xác minh: Kiểm tra nội dung evidence (giá trị, số liệu) theo dữ liệu của đội.\n  Chi tiết: tc-01-all-invoices.csv matches (7 rows)\n- [PASS] CR-01-TC-02 · Lọc một công ty: 25/25 điểm.\n  Tiêu chí: tc-02-filtered-invoices.csv chỉ chứa hoá đơn của công ty A, đúng thứ tự màn hình, từng ô khớp kết quả tính từ fixture; kèm ảnh.\n  Cách xác minh: Kiểm tra nội dung evidence (giá trị, số liệu) theo dữ liệu của đội.\n  Chi tiết: tc-02-filtered-invoices.csv matches (4 rows)\n- [PASS] CR-01-TC-03 · Ký tự đặc biệt và tiền VND: 25/25 điểm.\n  Tiêu chí: tc-03-special-company.csv giữ nguyên tên công ty tiếng Việt có dấu phẩy, ngoặc kép và xuống dòng sau khi parse RFC 4180, và ghi số tiền VND không có phần thập phân; kèm ảnh.\n  Cách xác minh: Kiểm tra nội dung evidence (giá trị, số liệu) theo dữ liệu của đội.\n  Chi tiết: tc-03-special-company.csv matches (1 rows)\n- [PASS] CR-01-TC-04 · Từ chối khi chưa đăng nhập: 15/15 điểm.\n  Tiêu chí: tc-04-signed-out-request.txt do script tạo ghi status REJECTED và invoice_data_leaked no; kèm ảnh tc-04-signed-out.png.\n  Cách xác minh: Kiểm tra nội dung evidence (giá trị, số liệu) theo dữ liệu của đội.\n- [PASS] CR-01-TC-05 · Bộ lọc rỗng: 15/15 điểm.\n  Tiêu chí: tc-05-empty-export.csv của công ty EMPTY có BOM và chỉ có dòng header; kèm ảnh.\n  Cách xác minh: Kiểm tra nội dung evidence (giá trị, số liệu) theo dữ liệu của đội.\n  Chi tiết: tc-05-empty-export.csv matches (0 rows)\n- [FAIL] CR-01 · Test tự động: 0/10 điểm.\n  Tiêu chí: Grader tự chạy toàn bộ test của đội (vitest trong node_modules, Postgres riêng, file config và test gốc của BTC được khôi phục trước): không test nào hỏng và có hơn 12 test đạt (ít nhất 13), tức đội đã thêm test mới; không dùng test.log.\n  Cách xác minh: Ban tổ chức tự chạy lại trên mã nguồn của đội.\n  Lý do: Grader tự chạy test: 23 test đạt, 1 test hỏng. Không đạt vì tiêu chí yêu cầu không test nào hỏng. Test hỏng: tests/cascade.test.ts › deletion cascades (spec §4) › deleting a company with invoices is RESTRICTED (financial history is protected).\n- [PASS] CR-01 · Typecheck: 10/10 điểm.\n  Tiêu chí: Grader tự chạy tsc --noEmit trên source của đội (sau prisma generate, tsconfig gốc của BTC) và lệnh thành công; không dùng typecheck.log.\n  Cách xác minh: Ban tổ chức tự chạy lại trên mã nguồn của đội.\n  Chi tiết: Grader tự chạy typecheck: thành công.\nKiểm tra tính toàn vẹn: chưa phát hiện vấn đề trong phạm vi đã kiểm tra; không phải chứng nhận không có gian lận.",
+      "extra": {
+        "errors": [],
+        "result": {
+          "status": "COMPLETED_WITH_FAILURES",
+          "assertions": {
+            "total": 7,
+            "failed": 1,
+            "passed": 6,
+            "pending": 0
+          },
+          "awardedPoints": 130,
+          "maximumPoints": 140,
+          "pendingPoints": 0
+        },
+        "gradedAt": "2026-11-04T13:22:21.109Z",
+        "assertions": [
+          {
+            "title": "CR-01-TC-01 · Xuất tất cả công ty",
+            "status": "PASS",
+            "replayPass": true,
+            "verifiedBy": "content",
+            "assertionId": "csv-all-companies",
+            "checkDetail": "tc-01-all-invoices.csv matches (7 rows)",
+            "description": "tc-01-all-invoices.csv có BOM, header đúng KB-EXP-01 revision 2 và từng ô khớp mọi hoá đơn tính từ fixture của đội, theo thứ tự màn hình; kèm ảnh và đủ evidence chung.",
+            "mvsCategory": "LOGIC",
+            "mvsTestCase": "CR-01-TC-01",
+            "awardedPoints": 40,
+            "maximumPoints": 40,
+            "submissionClaimValid": true,
+            "resumedFromCheckpoint": false
+          },
+          {
+            "title": "CR-01-TC-02 · Lọc một công ty",
+            "status": "PASS",
+            "replayPass": true,
+            "verifiedBy": "content",
+            "assertionId": "csv-filtered",
+            "checkDetail": "tc-02-filtered-invoices.csv matches (4 rows)",
+            "description": "tc-02-filtered-invoices.csv chỉ chứa hoá đơn của công ty A, đúng thứ tự màn hình, từng ô khớp kết quả tính từ fixture; kèm ảnh.",
+            "mvsCategory": "LOGIC",
+            "mvsTestCase": "CR-01-TC-02",
+            "awardedPoints": 25,
+            "maximumPoints": 25,
+            "submissionClaimValid": true,
+            "resumedFromCheckpoint": false
+          },
+          {
+            "title": "CR-01-TC-03 · Ký tự đặc biệt và tiền VND",
+            "status": "PASS",
+            "replayPass": true,
+            "verifiedBy": "content",
+            "assertionId": "csv-encoding",
+            "checkDetail": "tc-03-special-company.csv matches (1 rows)",
+            "description": "tc-03-special-company.csv giữ nguyên tên công ty tiếng Việt có dấu phẩy, ngoặc kép và xuống dòng sau khi parse RFC 4180, và ghi số tiền VND không có phần thập phân; kèm ảnh.",
+            "mvsCategory": "LOGIC",
+            "mvsTestCase": "CR-01-TC-03",
+            "awardedPoints": 25,
+            "maximumPoints": 25,
+            "submissionClaimValid": true,
+            "resumedFromCheckpoint": false
+          },
+          {
+            "title": "CR-01-TC-04 · Từ chối khi chưa đăng nhập",
+            "status": "PASS",
+            "replayPass": true,
+            "verifiedBy": "content",
+            "assertionId": "csv-auth",
+            "description": "tc-04-signed-out-request.txt do script tạo ghi status REJECTED và invoice_data_leaked no; kèm ảnh tc-04-signed-out.png.",
+            "mvsCategory": "LOGIC",
+            "mvsTestCase": "CR-01-TC-04",
+            "awardedPoints": 15,
+            "maximumPoints": 15,
+            "submissionClaimValid": true,
+            "resumedFromCheckpoint": false
+          },
+          {
+            "title": "CR-01-TC-05 · Bộ lọc rỗng",
+            "status": "PASS",
+            "replayPass": true,
+            "verifiedBy": "content",
+            "assertionId": "csv-empty",
+            "checkDetail": "tc-05-empty-export.csv matches (0 rows)",
+            "description": "tc-05-empty-export.csv của công ty EMPTY có BOM và chỉ có dòng header; kèm ảnh.",
+            "mvsCategory": "LOGIC",
+            "mvsTestCase": "CR-01-TC-05",
+            "awardedPoints": 15,
+            "maximumPoints": 15,
+            "submissionClaimValid": true,
+            "resumedFromCheckpoint": false
+          },
+          {
+            "title": "CR-01 · Test tự động",
+            "status": "FAIL",
+            "replayPass": false,
+            "verifiedBy": "replay",
+            "assertionId": "csv-tests",
+            "checkDetail": "Grader tự chạy test: 23 test đạt, 1 test hỏng. Không đạt vì tiêu chí yêu cầu không test nào hỏng. Test hỏng: tests/cascade.test.ts › deletion cascades (spec §4) › deleting a company with invoices is RESTRICTED (financial history is protected).",
+            "description": "Grader tự chạy toàn bộ test của đội (vitest trong node_modules, Postgres riêng, file config và test gốc của BTC được khôi phục trước): không test nào hỏng và có hơn 12 test đạt (ít nhất 13), tức đội đã thêm test mới; không dùng test.log.",
+            "awardedPoints": 0,
+            "maximumPoints": 10,
+            "verifiedByGrader": true,
+            "resumedFromCheckpoint": false
+          },
+          {
+            "title": "CR-01 · Typecheck",
+            "status": "PASS",
+            "replayPass": true,
+            "verifiedBy": "replay",
+            "assertionId": "csv-typecheck",
+            "checkDetail": "Grader tự chạy typecheck: thành công.",
+            "description": "Grader tự chạy tsc --noEmit trên source của đội (sau prisma generate, tsconfig gốc của BTC) và lệnh thành công; không dùng typecheck.log.",
+            "awardedPoints": 10,
+            "maximumPoints": 10,
+            "verifiedByGrader": true,
+            "resumedFromCheckpoint": false
+          }
+        ],
+        "gitRevision": "9e3eefdb679197412059ba48016f611b3bc6a18f",
+        "correctionId": null,
+        "graderVersion": 9,
+        "schemaVersion": 2,
+        "integrityReview": {
+          "status": "CLEAR",
+          "decision": "JUDGE_REQUIRED",
+          "incidents": []
+        },
+        "reportIntegrity": "d67e6ba90cb778a87af9b362cc6f4fcba7113d345bef0a42efabaf11f1ef6837",
+        "submissionReview": [
+          {
+            "status": "DONE",
+            "backlogId": "CR-01",
+            "attestation": {
+              "valid": false,
+              "reason": "Harness receipt was not submitted",
+              "status": "MISSING"
+            },
+            "testResults": [
+              {
+                "status": "NOT_RUN",
+                "testCaseId": null,
+                "evidenceFiles": [],
+                "evidenceValid": true,
+                "evidenceChecks": []
+              },
+              {
+                "status": "NOT_RUN",
+                "testCaseId": null,
+                "evidenceFiles": [],
+                "evidenceValid": true,
+                "evidenceChecks": []
+              },
+              {
+                "status": "NOT_RUN",
+                "testCaseId": null,
+                "evidenceFiles": [],
+                "evidenceValid": true,
+                "evidenceChecks": []
+              },
+              {
+                "status": "NOT_RUN",
+                "testCaseId": null,
+                "evidenceFiles": [],
+                "evidenceValid": true,
+                "evidenceChecks": []
+              },
+              {
+                "status": "NOT_RUN",
+                "testCaseId": null,
+                "evidenceFiles": [],
+                "evidenceValid": true,
+                "evidenceChecks": []
+              }
+            ],
+            "evidenceChecks": [
+              {
+                "safe": true,
+                "exists": true,
+                "reason": null,
+                "testCaseId": null,
+                "declaredPath": "evidence/after-invoices.png",
+                "normalizedPath": "evidence/after-invoices.png"
+              },
+              {
+                "safe": true,
+                "exists": true,
+                "reason": null,
+                "testCaseId": null,
+                "declaredPath": "evidence/before-invoices.png",
+                "normalizedPath": "evidence/before-invoices.png"
+              },
+              {
+                "safe": true,
+                "exists": true,
+                "reason": null,
+                "testCaseId": null,
+                "declaredPath": "evidence/cr-01-test-data.json",
+                "normalizedPath": "evidence/cr-01-test-data.json"
+              },
+              {
+                "safe": true,
+                "exists": true,
+                "reason": null,
+                "testCaseId": null,
+                "declaredPath": "evidence/tc-01-all-invoices.csv",
+                "normalizedPath": "evidence/tc-01-all-invoices.csv"
+              },
+              {
+                "safe": true,
+                "exists": true,
+                "reason": null,
+                "testCaseId": null,
+                "declaredPath": "evidence/tc-01-all-invoices.png",
+                "normalizedPath": "evidence/tc-01-all-invoices.png"
+              },
+              {
+                "safe": true,
+                "exists": true,
+                "reason": null,
+                "testCaseId": null,
+                "declaredPath": "evidence/tc-02-filtered-invoices.csv",
+                "normalizedPath": "evidence/tc-02-filtered-invoices.csv"
+              },
+              {
+                "safe": true,
+                "exists": true,
+                "reason": null,
+                "testCaseId": null,
+                "declaredPath": "evidence/tc-02-filtered-invoices.png",
+                "normalizedPath": "evidence/tc-02-filtered-invoices.png"
+              },
+              {
+                "safe": true,
+                "exists": true,
+                "reason": null,
+                "testCaseId": null,
+                "declaredPath": "evidence/tc-03-special-company.csv",
+                "normalizedPath": "evidence/tc-03-special-company.csv"
+              },
+              {
+                "safe": true,
+                "exists": true,
+                "reason": null,
+                "testCaseId": null,
+                "declaredPath": "evidence/tc-03-special-company.png",
+                "normalizedPath": "evidence/tc-03-special-company.png"
+              },
+              {
+                "safe": true,
+                "exists": true,
+                "reason": null,
+                "testCaseId": null,
+                "declaredPath": "evidence/tc-04-signed-out-request.txt",
+                "normalizedPath": "evidence/tc-04-signed-out-request.txt"
+              },
+              {
+                "safe": true,
+                "exists": true,
+                "reason": null,
+                "testCaseId": null,
+                "declaredPath": "evidence/tc-04-signed-out.png",
+                "normalizedPath": "evidence/tc-04-signed-out.png"
+              },
+              {
+                "safe": true,
+                "exists": true,
+                "reason": null,
+                "testCaseId": null,
+                "declaredPath": "evidence/tc-05-empty-export.csv",
+                "normalizedPath": "evidence/tc-05-empty-export.csv"
+              },
+              {
+                "safe": true,
+                "exists": true,
+                "reason": null,
+                "testCaseId": null,
+                "declaredPath": "evidence/tc-05-empty-export.png",
+                "normalizedPath": "evidence/tc-05-empty-export.png"
+              },
+              {
+                "safe": true,
+                "exists": true,
+                "reason": null,
+                "testCaseId": null,
+                "declaredPath": "evidence/test.log",
+                "normalizedPath": "evidence/test.log"
+              },
+              {
+                "safe": true,
+                "exists": true,
+                "reason": null,
+                "testCaseId": null,
+                "declaredPath": "evidence/typecheck.log",
+                "normalizedPath": "evidence/typecheck.log"
+              }
+            ],
+            "publicClaimValid": false
+          }
+        ],
+        "examDefinitionHash": "213edb29e966cf0802f37e7c6459b7b8479f4bea0555469a3d7f236670329e6c",
+        "canonicalGitRevision": "9e3eefdb679197412059ba48016f611b3bc6a18f"
+      }
+    },
+    "graderAttempts": [
+      {
+        "attemptId": "6a75a5ed-62bf-4636-9f14-37b3a6a25761",
+        "attemptNo": 1,
+        "status": "SUCCEEDED",
+        "points": 130,
+        "explanation": "Kết quả: 130/140 điểm.\nKiểm tra: 6 PASS, 1 FAIL.\nPhân bổ điểm: MVS 120/120 điểm · ngoài MVS 10/20 điểm.\nĐội tự đánh giá khi nộp: DONE.\nHồ sơ nộp: 15/15 file evidence khai báo có trong answers/CR-01/evidence/.\n- [PASS] CR-01-TC-01 · Xuất tất cả công ty: 40/40 điểm.\n  Tiêu chí: tc-01-all-invoices.csv có BOM, header đúng KB-EXP-01 revision 2 và từng ô khớp mọi hoá đơn tính từ fixture của đội, theo thứ tự màn hình; kèm ảnh và đủ evidence chung.\n  Cách xác minh: Kiểm tra nội dung evidence (giá trị, số liệu) theo dữ liệu của đội.\n  Chi tiết: tc-01-all-invoices.csv matches (7 rows)\n- [PASS] CR-01-TC-02 · Lọc một công ty: 25/25 điểm.\n  Tiêu chí: tc-02-filtered-invoices.csv chỉ chứa hoá đơn của công ty A, đúng thứ tự màn hình, từng ô khớp kết quả tính từ fixture; kèm ảnh.\n  Cách xác minh: Kiểm tra nội dung evidence (giá trị, số liệu) theo dữ liệu của đội.\n  Chi tiết: tc-02-filtered-invoices.csv matches (4 rows)\n- [PASS] CR-01-TC-03 · Ký tự đặc biệt và tiền VND: 25/25 điểm.\n  Tiêu chí: tc-03-special-company.csv giữ nguyên tên công ty tiếng Việt có dấu phẩy, ngoặc kép và xuống dòng sau khi parse RFC 4180, và ghi số tiền VND không có phần thập phân; kèm ảnh.\n  Cách xác minh: Kiểm tra nội dung evidence (giá trị, số liệu) theo dữ liệu của đội.\n  Chi tiết: tc-03-special-company.csv matches (1 rows)\n- [PASS] CR-01-TC-04 · Từ chối khi chưa đăng nhập: 15/15 điểm.\n  Tiêu chí: tc-04-signed-out-request.txt do script tạo ghi status REJECTED và invoice_data_leaked no; kèm ảnh tc-04-signed-out.png.\n  Cách xác minh: Kiểm tra nội dung evidence (giá trị, số liệu) theo dữ liệu của đội.\n- [PASS] CR-01-TC-05 · Bộ lọc rỗng: 15/15 điểm.\n  Tiêu chí: tc-05-empty-export.csv của công ty EMPTY có BOM và chỉ có dòng header; kèm ảnh.\n  Cách xác minh: Kiểm tra nội dung evidence (giá trị, số liệu) theo dữ liệu của đội.\n  Chi tiết: tc-05-empty-export.csv matches (0 rows)\n- [FAIL] CR-01 · Test tự động: 0/10 điểm.\n  Tiêu chí: Grader tự chạy toàn bộ test của đội (vitest trong node_modules, Postgres riêng, file config và test gốc của BTC được khôi phục trước): không test nào hỏng và có hơn 12 test đạt (ít nhất 13), tức đội đã thêm test mới; không dùng test.log.\n  Cách xác minh: Ban tổ chức tự chạy lại trên mã nguồn của đội.\n  Lý do: Grader tự chạy test: 23 test đạt, 1 test hỏng. Không đạt vì tiêu chí yêu cầu không test nào hỏng. Test hỏng: tests/cascade.test.ts › deletion cascades (spec §4) › deleting a company with invoices is RESTRICTED (financial history is protected).\n- [PASS] CR-01 · Typecheck: 10/10 điểm.\n  Tiêu chí: Grader tự chạy tsc --noEmit trên source của đội (sau prisma generate, tsconfig gốc của BTC) và lệnh thành công; không dùng typecheck.log.\n  Cách xác minh: Ban tổ chức tự chạy lại trên mã nguồn của đội.\n  Chi tiết: Grader tự chạy typecheck: thành công.\nKiểm tra tính toàn vẹn: chưa phát hiện vấn đề trong phạm vi đã kiểm tra; không phải chứng nhận không có gian lận.",
+        "extra": {
+          "errors": [],
+          "result": {
+            "status": "COMPLETED_WITH_FAILURES",
+            "assertions": {
+              "total": 7,
+              "failed": 1,
+              "passed": 6,
+              "pending": 0
+            },
+            "awardedPoints": 130,
+            "maximumPoints": 140,
+            "pendingPoints": 0
+          },
+          "gradedAt": "2026-11-04T13:22:21.109Z",
+          "assertions": [
+            {
+              "title": "CR-01-TC-01 · Xuất tất cả công ty",
+              "status": "PASS",
+              "replayPass": true,
+              "verifiedBy": "content",
+              "assertionId": "csv-all-companies",
+              "checkDetail": "tc-01-all-invoices.csv matches (7 rows)",
+              "description": "tc-01-all-invoices.csv có BOM, header đúng KB-EXP-01 revision 2 và từng ô khớp mọi hoá đơn tính từ fixture của đội, theo thứ tự màn hình; kèm ảnh và đủ evidence chung.",
+              "mvsCategory": "LOGIC",
+              "mvsTestCase": "CR-01-TC-01",
+              "awardedPoints": 40,
+              "maximumPoints": 40,
+              "submissionClaimValid": true,
+              "resumedFromCheckpoint": false
+            },
+            {
+              "title": "CR-01-TC-02 · Lọc một công ty",
+              "status": "PASS",
+              "replayPass": true,
+              "verifiedBy": "content",
+              "assertionId": "csv-filtered",
+              "checkDetail": "tc-02-filtered-invoices.csv matches (4 rows)",
+              "description": "tc-02-filtered-invoices.csv chỉ chứa hoá đơn của công ty A, đúng thứ tự màn hình, từng ô khớp kết quả tính từ fixture; kèm ảnh.",
+              "mvsCategory": "LOGIC",
+              "mvsTestCase": "CR-01-TC-02",
+              "awardedPoints": 25,
+              "maximumPoints": 25,
+              "submissionClaimValid": true,
+              "resumedFromCheckpoint": false
+            },
+            {
+              "title": "CR-01-TC-03 · Ký tự đặc biệt và tiền VND",
+              "status": "PASS",
+              "replayPass": true,
+              "verifiedBy": "content",
+              "assertionId": "csv-encoding",
+              "checkDetail": "tc-03-special-company.csv matches (1 rows)",
+              "description": "tc-03-special-company.csv giữ nguyên tên công ty tiếng Việt có dấu phẩy, ngoặc kép và xuống dòng sau khi parse RFC 4180, và ghi số tiền VND không có phần thập phân; kèm ảnh.",
+              "mvsCategory": "LOGIC",
+              "mvsTestCase": "CR-01-TC-03",
+              "awardedPoints": 25,
+              "maximumPoints": 25,
+              "submissionClaimValid": true,
+              "resumedFromCheckpoint": false
+            },
+            {
+              "title": "CR-01-TC-04 · Từ chối khi chưa đăng nhập",
+              "status": "PASS",
+              "replayPass": true,
+              "verifiedBy": "content",
+              "assertionId": "csv-auth",
+              "description": "tc-04-signed-out-request.txt do script tạo ghi status REJECTED và invoice_data_leaked no; kèm ảnh tc-04-signed-out.png.",
+              "mvsCategory": "LOGIC",
+              "mvsTestCase": "CR-01-TC-04",
+              "awardedPoints": 15,
+              "maximumPoints": 15,
+              "submissionClaimValid": true,
+              "resumedFromCheckpoint": false
+            },
+            {
+              "title": "CR-01-TC-05 · Bộ lọc rỗng",
+              "status": "PASS",
+              "replayPass": true,
+              "verifiedBy": "content",
+              "assertionId": "csv-empty",
+              "checkDetail": "tc-05-empty-export.csv matches (0 rows)",
+              "description": "tc-05-empty-export.csv của công ty EMPTY có BOM và chỉ có dòng header; kèm ảnh.",
+              "mvsCategory": "LOGIC",
+              "mvsTestCase": "CR-01-TC-05",
+              "awardedPoints": 15,
+              "maximumPoints": 15,
+              "submissionClaimValid": true,
+              "resumedFromCheckpoint": false
+            },
+            {
+              "title": "CR-01 · Test tự động",
+              "status": "FAIL",
+              "replayPass": false,
+              "verifiedBy": "replay",
+              "assertionId": "csv-tests",
+              "checkDetail": "Grader tự chạy test: 23 test đạt, 1 test hỏng. Không đạt vì tiêu chí yêu cầu không test nào hỏng. Test hỏng: tests/cascade.test.ts › deletion cascades (spec §4) › deleting a company with invoices is RESTRICTED (financial history is protected).",
+              "description": "Grader tự chạy toàn bộ test của đội (vitest trong node_modules, Postgres riêng, file config và test gốc của BTC được khôi phục trước): không test nào hỏng và có hơn 12 test đạt (ít nhất 13), tức đội đã thêm test mới; không dùng test.log.",
+              "awardedPoints": 0,
+              "maximumPoints": 10,
+              "verifiedByGrader": true,
+              "resumedFromCheckpoint": false
+            },
+            {
+              "title": "CR-01 · Typecheck",
+              "status": "PASS",
+              "replayPass": true,
+              "verifiedBy": "replay",
+              "assertionId": "csv-typecheck",
+              "checkDetail": "Grader tự chạy typecheck: thành công.",
+              "description": "Grader tự chạy tsc --noEmit trên source của đội (sau prisma generate, tsconfig gốc của BTC) và lệnh thành công; không dùng typecheck.log.",
+              "awardedPoints": 10,
+              "maximumPoints": 10,
+              "verifiedByGrader": true,
+              "resumedFromCheckpoint": false
+            }
+          ],
+          "gitRevision": "9e3eefdb679197412059ba48016f611b3bc6a18f",
+          "correctionId": null,
+          "graderVersion": 9,
+          "schemaVersion": 2,
+          "integrityReview": {
+            "status": "CLEAR",
+            "decision": "JUDGE_REQUIRED",
+            "incidents": []
+          },
+          "reportIntegrity": "d67e6ba90cb778a87af9b362cc6f4fcba7113d345bef0a42efabaf11f1ef6837",
+          "submissionReview": [
+            {
+              "status": "DONE",
+              "backlogId": "CR-01",
+              "attestation": {
+                "valid": false,
+                "reason": "Harness receipt was not submitted",
+                "status": "MISSING"
+              },
+              "testResults": [
+                {
+                  "status": "NOT_RUN",
+                  "testCaseId": null,
+                  "evidenceFiles": [],
+                  "evidenceValid": true,
+                  "evidenceChecks": []
+                },
+                {
+                  "status": "NOT_RUN",
+                  "testCaseId": null,
+                  "evidenceFiles": [],
+                  "evidenceValid": true,
+                  "evidenceChecks": []
+                },
+                {
+                  "status": "NOT_RUN",
+                  "testCaseId": null,
+                  "evidenceFiles": [],
+                  "evidenceValid": true,
+                  "evidenceChecks": []
+                },
+                {
+                  "status": "NOT_RUN",
+                  "testCaseId": null,
+                  "evidenceFiles": [],
+                  "evidenceValid": true,
+                  "evidenceChecks": []
+                },
+                {
+                  "status": "NOT_RUN",
+                  "testCaseId": null,
+                  "evidenceFiles": [],
+                  "evidenceValid": true,
+                  "evidenceChecks": []
+                }
+              ],
+              "evidenceChecks": [
+                {
+                  "safe": true,
+                  "exists": true,
+                  "reason": null,
+                  "testCaseId": null,
+                  "declaredPath": "evidence/after-invoices.png",
+                  "normalizedPath": "evidence/after-invoices.png"
+                },
+                {
+                  "safe": true,
+                  "exists": true,
+                  "reason": null,
+                  "testCaseId": null,
+                  "declaredPath": "evidence/before-invoices.png",
+                  "normalizedPath": "evidence/before-invoices.png"
+                },
+                {
+                  "safe": true,
+                  "exists": true,
+                  "reason": null,
+                  "testCaseId": null,
+                  "declaredPath": "evidence/cr-01-test-data.json",
+                  "normalizedPath": "evidence/cr-01-test-data.json"
+                },
+                {
+                  "safe": true,
+                  "exists": true,
+                  "reason": null,
+                  "testCaseId": null,
+                  "declaredPath": "evidence/tc-01-all-invoices.csv",
+                  "normalizedPath": "evidence/tc-01-all-invoices.csv"
+                },
+                {
+                  "safe": true,
+                  "exists": true,
+                  "reason": null,
+                  "testCaseId": null,
+                  "declaredPath": "evidence/tc-01-all-invoices.png",
+                  "normalizedPath": "evidence/tc-01-all-invoices.png"
+                },
+                {
+                  "safe": true,
+                  "exists": true,
+                  "reason": null,
+                  "testCaseId": null,
+                  "declaredPath": "evidence/tc-02-filtered-invoices.csv",
+                  "normalizedPath": "evidence/tc-02-filtered-invoices.csv"
+                },
+                {
+                  "safe": true,
+                  "exists": true,
+                  "reason": null,
+                  "testCaseId": null,
+                  "declaredPath": "evidence/tc-02-filtered-invoices.png",
+                  "normalizedPath": "evidence/tc-02-filtered-invoices.png"
+                },
+                {
+                  "safe": true,
+                  "exists": true,
+                  "reason": null,
+                  "testCaseId": null,
+                  "declaredPath": "evidence/tc-03-special-company.csv",
+                  "normalizedPath": "evidence/tc-03-special-company.csv"
+                },
+                {
+                  "safe": true,
+                  "exists": true,
+                  "reason": null,
+                  "testCaseId": null,
+                  "declaredPath": "evidence/tc-03-special-company.png",
+                  "normalizedPath": "evidence/tc-03-special-company.png"
+                },
+                {
+                  "safe": true,
+                  "exists": true,
+                  "reason": null,
+                  "testCaseId": null,
+                  "declaredPath": "evidence/tc-04-signed-out-request.txt",
+                  "normalizedPath": "evidence/tc-04-signed-out-request.txt"
+                },
+                {
+                  "safe": true,
+                  "exists": true,
+                  "reason": null,
+                  "testCaseId": null,
+                  "declaredPath": "evidence/tc-04-signed-out.png",
+                  "normalizedPath": "evidence/tc-04-signed-out.png"
+                },
+                {
+                  "safe": true,
+                  "exists": true,
+                  "reason": null,
+                  "testCaseId": null,
+                  "declaredPath": "evidence/tc-05-empty-export.csv",
+                  "normalizedPath": "evidence/tc-05-empty-export.csv"
+                },
+                {
+                  "safe": true,
+                  "exists": true,
+                  "reason": null,
+                  "testCaseId": null,
+                  "declaredPath": "evidence/tc-05-empty-export.png",
+                  "normalizedPath": "evidence/tc-05-empty-export.png"
+                },
+                {
+                  "safe": true,
+                  "exists": true,
+                  "reason": null,
+                  "testCaseId": null,
+                  "declaredPath": "evidence/test.log",
+                  "normalizedPath": "evidence/test.log"
+                },
+                {
+                  "safe": true,
+                  "exists": true,
+                  "reason": null,
+                  "testCaseId": null,
+                  "declaredPath": "evidence/typecheck.log",
+                  "normalizedPath": "evidence/typecheck.log"
+                }
+              ],
+              "publicClaimValid": false
+            }
+          ],
+          "examDefinitionHash": "213edb29e966cf0802f37e7c6459b7b8479f4bea0555469a3d7f236670329e6c",
+          "canonicalGitRevision": "9e3eefdb679197412059ba48016f611b3bc6a18f"
+        }
+      }
+    ],
+    "bgk": {
+      "status": "GRADED",
+      "verdict": null,
+      "points": 130,
+      "explanation": null,
+      "verifyAttemptId": "6a75a5ed-62bf-4636-9f14-37b3a6a25761",
+      "canVerify": true,
+      "canOverride": true
+    }
+  },
+  "evidenceStatus": 200,
+  "evidence": {
+    "files": [
+      {
+        "name": "after-invoices.png",
+        "url": "/api/v1/spectator/matches/OI1OFZ0I/teams/b8361640-5140-49a3-97b9-7522c4b698bb/backlog/CR-01/evidence/after-invoices.png",
+        "kind": "image",
+        "text": null,
+        "truncated": false
+      },
+      {
+        "name": "before-invoices.png",
+        "url": "/api/v1/spectator/matches/OI1OFZ0I/teams/b8361640-5140-49a3-97b9-7522c4b698bb/backlog/CR-01/evidence/before-invoices.png",
+        "kind": "image",
+        "text": null,
+        "truncated": false
+      },
+      {
+        "name": "cr-01-test-data.json",
+        "url": "/api/v1/spectator/matches/OI1OFZ0I/teams/b8361640-5140-49a3-97b9-7522c4b698bb/backlog/CR-01/evidence/cr-01-test-data.json",
+        "kind": "text",
+        "text": "{\n  \"fixtureId\": \"OI1OFZ0I-CR-01-CPL\",\n  \"backlogItemKey\": \"CR-01\",\n  \"description\": \"Official QA invoice data for team CPL, match OI1OFZ0I. Load it with the CR-01 loader script before producing verification evidence. It replaces every invoice in the application database.\",\n  \"data\": {\n    \"loader\": \"challenge/CR-01-seed.ts\",\n    \"companies\": [\n      {\n        \"key\": \"A\",\n        \"name\": \"Lotus Media CPL\",\n        \"currency\": \"USD\"\n      },\n      {\n        \"key\": \"B\",\n        \"name\": \"Han River Foods CPL\",\n        \"currency\": \"KRW\"\n      },\n      {\n        \"key\": \"VN\",\n        \"name\": \"Công ty TNHH \\\"Sao Mai\\\" CPL, CN Đà Nẵng\\nQuận Hải Châu\",\n        \"currency\": \"VND\"\n      },\n      {\n        \"key\": \"EMPTY\",\n        \"name\": \"Delta Works CPL\",\n        \"currency\": \"EUR\"\n      }\n    ],\n    \"invoices\": [\n      {\n        \"number\": \"INV-CPL-0701\",\n        \"company\": \"A\",\n        \"issueDate\": \"2026-10-12\",\n        \"dueDate\": \"2026-11-11\",\n        \"totalMinor\": 45000,\n        \"state\": \"ISSUED\",\n        \"payments\": [\n          {\n            \"amountMinor\": 10000,\n            \"paidAt\": \"2026-10-14\"\n          },\n          {\n            \"amountMinor\": 5050,\n            \"paidAt\": \"2026-10-18\"\n          },\n          {\n            \"amountMinor\": 4950,\n            \"paidAt\": \"2026-10-20\"\n          }\n        ]\n      },\n      {\n        \"number\": \"INV-CPL-0702\",\n        \"company\": \"A\",\n        \"issueDate\": \"2026-10-02\",\n        \"dueDate\": \"2026-10-16\",\n        \"totalMinor\": 12000,\n        \"state\": \"ISSUED\",\n        \"payments\": [\n          {\n            \"amountMinor\": 7000,\n            \"paidAt\": \"2026-10-05\"\n          },\n          {\n            \"amountMinor\": 5500,\n            \"paidAt\": \"2026-10-09\"\n          }\n        ]\n      },\n      {\n        \"number\": \"INV-CPL-0703\",\n        \"company\": \"B\",\n        \"issueDate\": \"2026-09-28\",\n        \"dueDate\": \"2026-10-28\",\n        \"totalMinor\": 880000,\n        \"state\": \"ISSUED\",\n        \"payments\": []\n      },\n      {\n        \"number\": \"INV-CPL-0704\",\n        \"company\": \"A\",\n        \"issueDate\": \"2026-09-21\",\n        \"dueDate\": null,\n        \"totalMinor\": 30000,\n        \"state\": \"DRAFT\",\n        \"payments\": []\n      },\n      {\n        \"number\": \"INV-CPL-0705\",\n        \"company\": \"VN\",\n        \"issueDate\": \"2026-09-15\",\n        \"dueDate\": \"2026-10-15\",\n        \"totalMinor\": 2500000,\n        \"state\": \"ISSUED\",\n        \"payments\": [\n          {\n            \"amountMinor\": 1000000,\n            \"paidAt\": \"2026-09-30\"\n          }\n        ]\n      },\n      {\n        \"number\": \"INV-CPL-0706\",\n        \"company\": \"B\",\n        \"issueDate\": \"2026-09-09\",\n        \"dueDate\": \"2026-09-30\",\n        \"totalMinor\": 150000,\n        \"state\": \"VOID\",\n        \"payments\": []\n      },\n      {\n        \"number\": \"INV-CPL-0707\",\n        \"company\": \"A\",\n        \"issueDate\": \"2026-08-30\",\n        \"dueDate\": \"2026-09-29\",\n        \"totalMinor\": 9900,\n        \"state\": \"OVERDUE\",\n        \"payments\": []\n      }\n    ],\n    \"scenarios\": {\n      \"CR-01-TC-01\": {\n        \"filter\": \"ALL\"\n      },\n      \"CR-01-TC-02\": {\n        \"filter\": \"A\"\n      },\n      \"CR-01-TC-03\": {\n        \"filter\": \"VN\"\n      },\n      \"CR-01-TC-05\": {\n        \"filter\": \"EMPTY\"\n      }\n    }\n  }\n}",
+        "truncated": false
+      },
+      {
+        "name": "tc-01-all-invoices.csv",
+        "url": "/api/v1/spectator/matches/OI1OFZ0I/teams/b8361640-5140-49a3-97b9-7522c4b698bb/backlog/CR-01/evidence/tc-01-all-invoices.csv",
+        "kind": "text",
+        "text": "invoice_number,company,currency,issue_date,due_date,total,paid,balance_due,status\nINV-CPL-0701,Lotus Media CPL,USD,2026-10-12,2026-11-11,450.00,200.00,250.00,PARTIAL\nINV-CPL-0702,Lotus Media CPL,USD,2026-10-02,2026-10-16,120.00,125.00,0.00,PAID\nINV-CPL-0703,Han River Foods CPL,KRW,2026-09-28,2026-10-28,880000,0,880000,SENT\nINV-CPL-0704,Lotus Media CPL,USD,2026-09-21,,300.00,0.00,0.00,DRAFT\nINV-CPL-0705,\"Công ty TNHH \"\"Sao Mai\"\" CPL, CN Đà Nẵng\nQuận Hải Châu\",VND,2026-09-15,2026-10-15,2500000,1000000,1500000,PARTIAL\nINV-CPL-0706,Han River Foods CPL,KRW,2026-09-09,2026-09-30,150000,0,0,VOID\nINV-CPL-0707,Lotus Media CPL,USD,2026-08-30,2026-09-29,99.00,0.00,99.00,OVERDUE\n",
+        "truncated": false
+      },
+      {
+        "name": "tc-01-all-invoices.png",
+        "url": "/api/v1/spectator/matches/OI1OFZ0I/teams/b8361640-5140-49a3-97b9-7522c4b698bb/backlog/CR-01/evidence/tc-01-all-invoices.png",
+        "kind": "image",
+        "text": null,
+        "truncated": false
+      },
+      {
+        "name": "tc-02-filtered-invoices.csv",
+        "url": "/api/v1/spectator/matches/OI1OFZ0I/teams/b8361640-5140-49a3-97b9-7522c4b698bb/backlog/CR-01/evidence/tc-02-filtered-invoices.csv",
+        "kind": "text",
+        "text": "invoice_number,company,currency,issue_date,due_date,total,paid,balance_due,status\nINV-CPL-0701,Lotus Media CPL,USD,2026-10-12,2026-11-11,450.00,200.00,250.00,PARTIAL\nINV-CPL-0702,Lotus Media CPL,USD,2026-10-02,2026-10-16,120.00,125.00,0.00,PAID\nINV-CPL-0704,Lotus Media CPL,USD,2026-09-21,,300.00,0.00,0.00,DRAFT\nINV-CPL-0707,Lotus Media CPL,USD,2026-08-30,2026-09-29,99.00,0.00,99.00,OVERDUE\n",
+        "truncated": false
+      },
+      {
+        "name": "tc-02-filtered-invoices.png",
+        "url": "/api/v1/spectator/matches/OI1OFZ0I/teams/b8361640-5140-49a3-97b9-7522c4b698bb/backlog/CR-01/evidence/tc-02-filtered-invoices.png",
+        "kind": "image",
+        "text": null,
+        "truncated": false
+      },
+      {
+        "name": "tc-03-special-company.csv",
+        "url": "/api/v1/spectator/matches/OI1OFZ0I/teams/b8361640-5140-49a3-97b9-7522c4b698bb/backlog/CR-01/evidence/tc-03-special-company.csv",
+        "kind": "text",
+        "text": "invoice_number,company,currency,issue_date,due_date,total,paid,balance_due,status\nINV-CPL-0705,\"Công ty TNHH \"\"Sao Mai\"\" CPL, CN Đà Nẵng\nQuận Hải Châu\",VND,2026-09-15,2026-10-15,2500000,1000000,1500000,PARTIAL\n",
+        "truncated": false
+      },
+      {
+        "name": "tc-03-special-company.png",
+        "url": "/api/v1/spectator/matches/OI1OFZ0I/teams/b8361640-5140-49a3-97b9-7522c4b698bb/backlog/CR-01/evidence/tc-03-special-company.png",
+        "kind": "image",
+        "text": null,
+        "truncated": false
+      },
+      {
+        "name": "tc-04-signed-out-request.txt",
+        "url": "/api/v1/spectator/matches/OI1OFZ0I/teams/b8361640-5140-49a3-97b9-7522c4b698bb/backlog/CR-01/evidence/tc-04-signed-out-request.txt",
+        "kind": "text",
+        "text": "CR-01 signed-out check\ncookies_sent: none\nstatus: REJECTED\ninvoice_data_leaked: no\n",
+        "truncated": false
+      },
+      {
+        "name": "tc-04-signed-out.png",
+        "url": "/api/v1/spectator/matches/OI1OFZ0I/teams/b8361640-5140-49a3-97b9-7522c4b698bb/backlog/CR-01/evidence/tc-04-signed-out.png",
+        "kind": "image",
+        "text": null,
+        "truncated": false
+      },
+      {
+        "name": "tc-05-empty-export.csv",
+        "url": "/api/v1/spectator/matches/OI1OFZ0I/teams/b8361640-5140-49a3-97b9-7522c4b698bb/backlog/CR-01/evidence/tc-05-empty-export.csv",
+        "kind": "text",
+        "text": "invoice_number,company,currency,issue_date,due_date,total,paid,balance_due,status\n",
+        "truncated": false
+      },
+      {
+        "name": "tc-05-empty-export.png",
+        "url": "/api/v1/spectator/matches/OI1OFZ0I/teams/b8361640-5140-49a3-97b9-7522c4b698bb/backlog/CR-01/evidence/tc-05-empty-export.png",
+        "kind": "image",
+        "text": null,
+        "truncated": false
+      },
+      {
+        "name": "test.log",
+        "url": "/api/v1/spectator/matches/OI1OFZ0I/teams/b8361640-5140-49a3-97b9-7522c4b698bb/backlog/CR-01/evidence/test.log",
+        "kind": "text",
+        "text": "command: pnpm test\n✓ Lockfile passes supply-chain policies (verified 7d ago)\nLockfile is up to date, resolution step is skipped\nAlready up to date\n\nDone in 854ms using pnpm v11.9.0\n\n RUN  v3.2.6 D:/mtm/CPL/matches/OI1OFZ0I/OI1OFZ0I/src\n\n◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }\nPrisma schema loaded from prisma\\schema\nDatasource \"db\": PostgreSQL database \"freelanceos_test\", schema \"public\" at \"127.0.0.1:5433\"\n\n7 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\nstdout | tests/accounting.test.ts\n◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]\n\n ✓ tests/accounting.test.ts (6 tests) 4339ms\n   ✓ double-entry accounting core (spec §4.2, §12.3, §12.4) > rejects an unbalanced journal entry at the service layer  710ms\n   ✓ double-entry accounting core (spec §4.2, §12.3, §12.4) > rejects an unbalanced entry at the DATABASE level (trigger backstop)  728ms\n   ✓ double-entry accounting core (spec §4.2, §12.3, §12.4) > accepts a balanced entry and SUM(debits) = SUM(credits)  694ms\n   ✓ double-entry accounting core (spec §4.2, §12.3, §12.4) > journal is append-only: updates and deletes are blocked  827ms\n   ✓ double-entry accounting core (spec §4.2, §12.3, §12.4) > corrections are reversing entries that mirror debit/credit  700ms\n   ✓ double-entry accounting core (spec §4.2, §12.3, §12.4) > issuing an invoice posts DR AR / CR Revenue; payment posts DR Bank / CR AR and flips status  678ms\n ✓ tests/cr01.test.ts (10 tests) 4ms\nstdout | tests/cascade.test.ts\n◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }\n\n ✓ tests/cascade.test.ts (3 tests) 2010ms\n   ✓ deletion cascades (spec §4) > deleting a company deletes its boards, lists, cards, projects and contracts  699ms\n   ✓ deletion cascades (spec §4) > deleting a board deletes its lists and cards (company survives)  630ms\n   ✓ deletion cascades (spec §4) > deleting a company with invoices is RESTRICTED (financial history is protected)  679ms\nstdout | tests/move-card.test.ts\n◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]\n\n ✓ tests/move-card.test.ts (2 tests) 1883ms\n   ✓ card movement + Done automation (spec §5, §12.6) > moving a card to Done marks it completed and writes a COMPLETED activity  1134ms\n   ✓ card movement + Done automation (spec §5, §12.6) > reordering within the same list updates position without firing MOVED  748ms\nstdout | tests/heatmap.test.ts\n◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }\n\n ✓ tests/heatmap.test.ts (1 test) 781ms\n   ✓ heatmap aggregation (spec §6, §12.5) > returns correct per-day counts from activity + time entries  780ms\n ✓ tests/task03.test.ts (1 test) 2ms\n ✓ tests/pi01.test.ts (1 test) 2ms\n\n Test Files  7 passed (7)\n      Tests  24 passed (24)\n   Start at  20:15:59\n   Duration  14.68s (transform 401ms, setup 0ms, collect 1.74s, tests 9.02s, environment 1ms, prepare 661ms)\n\n$ vitest run\nwarn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).\nFor more information, see: https://pris.ly/prisma-config\n\nEnvironment variables loaded from .env\nexit_code: 0\n",
+        "truncated": false
+      },
+      {
+        "name": "typecheck.log",
+        "url": "/api/v1/spectator/matches/OI1OFZ0I/teams/b8361640-5140-49a3-97b9-7522c4b698bb/backlog/CR-01/evidence/typecheck.log",
+        "kind": "text",
+        "text": "command: pnpm typecheck\n$ tsc --noEmit\nexit_code: 0\n",
+        "truncated": false
+      }
+    ]
+  }
+}

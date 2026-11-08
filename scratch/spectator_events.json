@@ -1,0 +1,26 @@
+[
+  {
+    "key": "WAVE-4",
+    "title": "Wave 4. Final wave, including a quick question with a short deadline",
+    "summary": "New backlog items: TASK-03, CR-03, TASK-04",
+    "publishedAt": "2026-11-02T03:24:10.887Z"
+  },
+  {
+    "key": "WAVE-3",
+    "title": "Wave 3. Production incident and more work",
+    "summary": "New backlog items: PI-01, BUG-04, CR-02",
+    "publishedAt": "2026-11-02T03:16:10.411Z"
+  },
+  {
+    "key": "WAVE-2",
+    "title": "Wave 2. A status bug with a deadline and the accountants' export",
+    "summary": "New backlog items: BUG-03, CR-01",
+    "publishedAt": "2026-11-02T03:12:10.354Z"
+  },
+  {
+    "key": "WAVE-1",
+    "title": "Wave 1. Product quality: two bugs, one with a deadline",
+    "summary": "New backlog items: BUG-01, BUG-02",
+    "publishedAt": "2026-11-02T03:04:09.585Z"
+  }
+]

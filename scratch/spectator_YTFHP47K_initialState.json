@@ -1,0 +1,475 @@
+{
+  "match": {
+    "id": "YTFHP47K",
+    "name": "[Practice] MTM-26-7UJVLX - CPL - 20261104145503",
+    "status": "IN_PROGRESS",
+    "timer": {
+      "elapsedSec": 1541,
+      "remainingSec": 859,
+      "configuredDurationSec": 2400
+    }
+  },
+  "presentation": {
+    "scene": "TEAM_PROGRESS",
+    "showScoreboard": false,
+    "scoreboardFrozen": false,
+    "focusedTeamId": null,
+    "overlay": null,
+    "version": 0
+  },
+  "project": {
+    "name": "Solova Project Management Webapp",
+    "summary": "Solova is an open-source, self-hosted project manager that combines Kanban boards with a client CRM, contracts, time tracking and double-entry accounting, aimed at freelancers and small studios.",
+    "features": [
+      "Companies (CRM): Client records with billing models (retainer / per-project / per-task / hourly), contracts, and a per-company finance view: expected vs actual income and outstanding balance",
+      "Contacts: Many contacts per company with email, phone, mobile, WhatsApp and Telegram quick-links, added when you create the company",
+      "Kanban boards: Drag-and-drop lists and cards, labels, checklists (turn an item into a card), comments, attachments, photo covers, due dates, board and card templates, archive, plus Calendar, Table and Stats views",
+      "Projects: Notes, typed custom fields, a website with auto-fetched favicon, per-project pricing, and linked boards",
+      "Accounting: Append-only double-entry ledger, invoices (draft to issued to void), payments, a product/service catalog, expenses, and P&L and balance sheet reports",
+      "Dashboard: Contribution heatmap, open/closed and label charts, income per month, and expected-vs-actual per client",
+      "Time tracking: One-click start/stop timer plus manual entries that feed billing and the activity heatmap",
+      "Notes: A sticky-note pinboard for quick thoughts"
+    ]
+  },
+  "currentStep": {
+    "stepOrder": 5,
+    "title": "Wave 4. Final wave, including a quick question with a short deadline",
+    "publicSummary": "Wave 4. Final wave, including a quick question with a short deadline"
+  },
+  "latestEvent": {
+    "key": "WAVE-4",
+    "title": "Wave 4. Final wave, including a quick question with a short deadline",
+    "summary": "New backlog items: TASK-03, CR-03, TASK-04"
+  },
+  "events": [
+    {
+      "key": "WAVE-4",
+      "title": "Wave 4. Final wave, including a quick question with a short deadline",
+      "summary": "New backlog items: TASK-03, CR-03, TASK-04",
+      "publishedAt": "2026-11-04T08:26:36.845Z"
+    },
+    {
+      "key": "WAVE-3",
+      "title": "Wave 3. Production incident and more work",
+      "summary": "New backlog items: PI-01, BUG-04, CR-02",
+      "publishedAt": "2026-11-04T08:18:37.678Z"
+    },
+    {
+      "key": "WAVE-2",
+      "title": "Wave 2. A status bug with a deadline and the accountants' export",
+      "summary": "New backlog items: BUG-03, CR-01",
+      "publishedAt": "2026-11-04T08:14:37.514Z"
+    },
+    {
+      "key": "WAVE-1",
+      "title": "Wave 1. Product quality: two bugs, one with a deadline",
+      "summary": "New backlog items: BUG-01, BUG-02",
+      "publishedAt": "2026-11-04T08:06:36.584Z"
+    }
+  ],
+  "backlog": [
+    {
+      "key": "BUG-01",
+      "title": "Desktop sidebar obscures the main content",
+      "type": "BUG",
+      "status": "OPEN",
+      "deadlineMinutes": null,
+      "revealedElapsedSec": 0,
+      "points": 100,
+      "textVersion": "a86deaf1bb00"
+    },
+    {
+      "key": "BUG-02",
+      "title": "Amounts for VND clients are 100 times too large",
+      "type": "BUG",
+      "status": "CLOSED",
+      "deadlineMinutes": 18,
+      "revealedElapsedSec": 0,
+      "points": 100,
+      "textVersion": "692a2268ce94"
+    },
+    {
+      "key": "BUG-03",
+      "title": "Invoices paid in full stay partially paid",
+      "type": "BUG",
+      "status": "CLOSED",
+      "deadlineMinutes": 15,
+      "revealedElapsedSec": 480,
+      "points": 80,
+      "textVersion": "c9d1c862e0bf"
+    },
+    {
+      "key": "CR-01",
+      "title": "Export the filtered invoice list as CSV",
+      "type": "CR",
+      "status": "OPEN",
+      "deadlineMinutes": null,
+      "revealedElapsedSec": 480,
+      "points": 140,
+      "textVersion": "2a20553b6744"
+    },
+    {
+      "key": "PI-01",
+      "title": "Clients receive payment reminders for invoices they already paid",
+      "type": "PI",
+      "status": "OPEN",
+      "deadlineMinutes": 15,
+      "revealedElapsedSec": 721,
+      "points": 160,
+      "textVersion": "66e803bf9fdb"
+    },
+    {
+      "key": "BUG-04",
+      "title": "Cards dropped at the top of a list lose their order",
+      "type": "BUG",
+      "status": "OPEN",
+      "deadlineMinutes": null,
+      "revealedElapsedSec": 721,
+      "points": 80,
+      "textVersion": "5a742e14fdd5"
+    },
+    {
+      "key": "CR-02",
+      "title": "Receivables aging report",
+      "type": "CR",
+      "status": "OPEN",
+      "deadlineMinutes": null,
+      "revealedElapsedSec": 721,
+      "points": 120,
+      "textVersion": "1938ed42b89b"
+    },
+    {
+      "key": "TASK-03",
+      "title": "Read the heatmap's logged time for one day",
+      "type": "TASK",
+      "status": "OPEN",
+      "deadlineMinutes": 8,
+      "revealedElapsedSec": 1200,
+      "points": 50,
+      "textVersion": "9123c455a443"
+    },
+    {
+      "key": "CR-03",
+      "title": "Contact quick links that always work",
+      "type": "CR",
+      "status": "OPEN",
+      "deadlineMinutes": null,
+      "revealedElapsedSec": 1200,
+      "points": 100,
+      "textVersion": "a0c48f047c07"
+    },
+    {
+      "key": "TASK-04",
+      "title": "Trace the ledger after an invoice, a void and two payments",
+      "type": "TASK",
+      "status": "OPEN",
+      "deadlineMinutes": null,
+      "revealedElapsedSec": 1200,
+      "points": 70,
+      "textVersion": "3f3ca9af24c9"
+    }
+  ],
+  "steps": [
+    {
+      "stepOrder": 1,
+      "title": "Start preparation",
+      "publicSummary": "Application briefing is available for Digital Cuder.",
+      "status": "ACTIVATED",
+      "suggestedDurationSec": 300
+    },
+    {
+      "stepOrder": 2,
+      "title": "Wave 1. Product quality: two bugs, one with a deadline",
+      "publicSummary": "Wave 1. Product quality: two bugs, one with a deadline",
+      "status": "ACTIVATED",
+      "suggestedDurationSec": 0
+    },
+    {
+      "stepOrder": 3,
+      "title": "Wave 2. A status bug with a deadline and the accountants' export",
+      "publicSummary": "Wave 2. A status bug with a deadline and the accountants' export",
+      "status": "ACTIVATED",
+      "suggestedDurationSec": 480
+    },
+    {
+      "stepOrder": 4,
+      "title": "Wave 3. Production incident and more work",
+      "publicSummary": "Wave 3. Production incident and more work",
+      "status": "ACTIVATED",
+      "suggestedDurationSec": 720
+    },
+    {
+      "stepOrder": 5,
+      "title": "Wave 4. Final wave, including a quick question with a short deadline",
+      "publicSummary": "Wave 4. Final wave, including a quick question with a short deadline",
+      "status": "ACTIVATED",
+      "suggestedDurationSec": 1200
+    }
+  ],
+  "activity": [
+    {
+      "at": "2026-11-04T08:29:37.954Z",
+      "kind": "match",
+      "text": "Submissions closed",
+      "teamCode": null,
+      "backlogItemKey": null
+    },
+    {
+      "at": "2026-11-04T08:26:38.256Z",
+      "kind": "backlog",
+      "text": "Team CPL started working on TASK-04 (Trace the ledger…)",
+      "teamCode": "CPL",
+      "backlogItemKey": "TASK-04"
+    },
+    {
+      "at": "2026-11-04T08:26:37.838Z",
+      "kind": "backlog",
+      "text": "Team CPL started working on CR-03 (Contact quick li…)",
+      "teamCode": "CPL",
+      "backlogItemKey": "CR-03"
+    },
+    {
+      "at": "2026-11-04T08:26:37.237Z",
+      "kind": "backlog",
+      "text": "Team CPL started working on TASK-03 (Read the heatmap…)",
+      "teamCode": "CPL",
+      "backlogItemKey": "TASK-03"
+    },
+    {
+      "at": "2026-11-04T08:26:36.988Z",
+      "kind": "submission",
+      "text": "Team CPL submitted PI-01 (Clients receive …)",
+      "teamCode": "CPL",
+      "backlogItemKey": "PI-01"
+    },
+    {
+      "at": "2026-11-04T08:26:36.845Z",
+      "kind": "match",
+      "text": "Submissions opened",
+      "teamCode": null,
+      "backlogItemKey": null
+    },
+    {
+      "at": "2026-11-04T08:26:36.845Z",
+      "kind": "backlog",
+      "text": "Backlog revealed",
+      "teamCode": null,
+      "backlogItemKey": null
+    },
+    {
+      "at": "2026-11-04T08:26:36.845Z",
+      "kind": "event",
+      "text": "Wave 4. Final wave, including a quick question with a short deadline",
+      "teamCode": null,
+      "backlogItemKey": null
+    },
+    {
+      "at": "2026-11-04T08:24:37.912Z",
+      "kind": "match",
+      "text": "Submissions closed",
+      "teamCode": null,
+      "backlogItemKey": null
+    },
+    {
+      "at": "2026-11-04T08:18:44.979Z",
+      "kind": "backlog",
+      "text": "Team CPL started working on BUG-04 (Cards dropped at…)",
+      "teamCode": "CPL",
+      "backlogItemKey": "BUG-04"
+    },
+    {
+      "at": "2026-11-04T08:18:44.036Z",
+      "kind": "backlog",
+      "text": "Team CPL started working on CR-02 (Receivables agin…)",
+      "teamCode": "CPL",
+      "backlogItemKey": "CR-02"
+    },
+    {
+      "at": "2026-11-04T08:18:42.764Z",
+      "kind": "backlog",
+      "text": "Team CPL started working on PI-01 (Clients receive …)",
+      "teamCode": "CPL",
+      "backlogItemKey": "PI-01"
+    }
+  ],
+  "teamActivity": [
+    {
+      "at": "2026-11-04T08:26:38.256Z",
+      "kind": "backlog",
+      "text": "Team CPL started working on TASK-04",
+      "teamCode": "CPL",
+      "backlogItemKey": "TASK-04"
+    },
+    {
+      "at": "2026-11-04T08:26:37.838Z",
+      "kind": "backlog",
+      "text": "Team CPL started working on CR-03",
+      "teamCode": "CPL",
+      "backlogItemKey": "CR-03"
+    },
+    {
+      "at": "2026-11-04T08:26:37.237Z",
+      "kind": "backlog",
+      "text": "Team CPL started working on TASK-03",
+      "teamCode": "CPL",
+      "backlogItemKey": "TASK-03"
+    },
+    {
+      "at": "2026-11-04T08:26:36.988Z",
+      "kind": "submission",
+      "text": "Team CPL submitted PI-01",
+      "teamCode": "CPL",
+      "backlogItemKey": "PI-01"
+    },
+    {
+      "at": "2026-11-04T08:18:44.979Z",
+      "kind": "backlog",
+      "text": "Team CPL started working on BUG-04",
+      "teamCode": "CPL",
+      "backlogItemKey": "BUG-04"
+    }
+  ],
+  "teams": [
+    {
+      "teamId": "b8361640-5140-49a3-97b9-7522c4b698bb",
+      "teamCode": "CPL",
+      "teamName": "[FHM] Còpilot",
+      "passedCount": 0,
+      "totalPoints": 160,
+      "computerAccessUsed": 0,
+      "nonStandardModes": [],
+      "completionTimeSec": 2400,
+      "cells": [
+        {
+          "backlogItemKey": "BUG-01",
+          "title": "Desktop sidebar obscures the main content",
+          "scoreStatus": "WORKING",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "WORKING",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "BUG-02",
+          "title": "Amounts for VND clients are 100 times too large",
+          "scoreStatus": "WORKING",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "WORKING",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "BUG-03",
+          "title": "Invoices paid in full stay partially paid",
+          "scoreStatus": "WORKING",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "WORKING",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "CR-01",
+          "title": "Export the filtered invoice list as CSV",
+          "scoreStatus": "WORKING",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "WORKING",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "PI-01",
+          "title": "Clients receive payment reminders for invoices they already paid",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 160,
+          "graderPoints": 160,
+          "piSubmitOrder": 1,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "BUG-04",
+          "title": "Cards dropped at the top of a list lose their order",
+          "scoreStatus": "WORKING",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "WORKING",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "CR-02",
+          "title": "Receivables aging report",
+          "scoreStatus": "WORKING",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "WORKING",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-03",
+          "title": "Read the heatmap's logged time for one day",
+          "scoreStatus": "WORKING",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "WORKING",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "CR-03",
+          "title": "Contact quick links that always work",
+          "scoreStatus": "WORKING",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "WORKING",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-04",
+          "title": "Trace the ledger after an invoice, a void and two payments",
+          "scoreStatus": "WORKING",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "WORKING",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        }
+      ],
+      "submitted": 1,
+      "total": 10,
+      "lastSubmittedAt": "2026-11-04T08:26:36.988Z",
+      "totalTimeSec": null,
+      "preparationComplete": true
+    }
+  ],
+  "scoreboard": {
+    "frozen": false,
+    "capturedAt": null
+  }
+}

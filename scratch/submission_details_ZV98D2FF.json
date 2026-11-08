@@ -1,0 +1,104 @@
+{
+  "undefined": {
+    "BUG-01": {
+      "submission": {
+        "error": {
+          "code": "FORBIDDEN",
+          "message": "Only Admin or the team itself can open this team's dashboard and submissions.",
+          "requestId": "req_098f33f3e8f046e08a6881ef4a1232a0",
+          "details": {}
+        }
+      }
+    },
+    "BUG-02": {
+      "submission": {
+        "error": {
+          "code": "FORBIDDEN",
+          "message": "Only Admin or the team itself can open this team's dashboard and submissions.",
+          "requestId": "req_1d3ff4fa4589484882be19c084996687",
+          "details": {}
+        }
+      }
+    },
+    "BUG-03": {
+      "submission": {
+        "error": {
+          "code": "FORBIDDEN",
+          "message": "Only Admin or the team itself can open this team's dashboard and submissions.",
+          "requestId": "req_d40726ee33bc4ca281e3e1a8320fec78",
+          "details": {}
+        }
+      }
+    },
+    "CR-01": {
+      "submission": {
+        "error": {
+          "code": "FORBIDDEN",
+          "message": "Only Admin or the team itself can open this team's dashboard and submissions.",
+          "requestId": "req_87ec9da1866c47c4a232c45ac7f3b623",
+          "details": {}
+        }
+      }
+    },
+    "PI-01": {
+      "submission": {
+        "error": {
+          "code": "FORBIDDEN",
+          "message": "Only Admin or the team itself can open this team's dashboard and submissions.",
+          "requestId": "req_b6a9d297d48e431097e4d3f3c7411338",
+          "details": {}
+        }
+      }
+    },
+    "BUG-04": {
+      "submission": {
+        "error": {
+          "code": "FORBIDDEN",
+          "message": "Only Admin or the team itself can open this team's dashboard and submissions.",
+          "requestId": "req_fa7b4392f710466784afe77b4898e511",
+          "details": {}
+        }
+      }
+    },
+    "CR-02": {
+      "submission": {
+        "error": {
+          "code": "FORBIDDEN",
+          "message": "Only Admin or the team itself can open this team's dashboard and submissions.",
+          "requestId": "req_a661df6a134a412a8622fa8d3fdc5a04",
+          "details": {}
+        }
+      }
+    },
+    "TASK-03": {
+      "submission": {
+        "error": {
+          "code": "FORBIDDEN",
+          "message": "Only Admin or the team itself can open this team's dashboard and submissions.",
+          "requestId": "req_3b0ac5d68a804cc7a42a3a5a0e12a4ce",
+          "details": {}
+        }
+      }
+    },
+    "CR-03": {
+      "submission": {
+        "error": {
+          "code": "FORBIDDEN",
+          "message": "Only Admin or the team itself can open this team's dashboard and submissions.",
+          "requestId": "req_e9f3a7ec6dd84528abf30c58c071f61a",
+          "details": {}
+        }
+      }
+    },
+    "TASK-04": {
+      "submission": {
+        "error": {
+          "code": "FORBIDDEN",
+          "message": "Only Admin or the team itself can open this team's dashboard and submissions.",
+          "requestId": "req_8b80f3f5087c461da72c63acd2b372ea",
+          "details": {}
+        }
+      }
+    }
+  }
+}

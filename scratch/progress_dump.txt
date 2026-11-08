@@ -1,0 +1,919 @@
+
+--- [0] ORCHESTRATOR_STARTED ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "ORCHESTRATOR_STARTED",
+  "summary": "Team orchestrator started."
+}
+
+--- [1] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "MATCH_LOGIN",
+  "backlogId": null,
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/auth/login",
+  "phase": "REQUESTED",
+  "httpStatus": null,
+  "requestId": "230df4f0-38a0-4284-ac95-1d016fe25abf",
+  "summary": "Authenticating web session against Game Master"
+}
+
+--- [2] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "MATCH_LOGIN",
+  "backlogId": null,
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/auth/login",
+  "phase": "SUCCEEDED",
+  "httpStatus": 200,
+  "requestId": "230df4f0-38a0-4284-ac95-1d016fe25abf",
+  "summary": "Authenticated successfully as CPL_digital_cuder"
+}
+
+--- [3] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "GIT_AUTH",
+  "status": "COMPLETED",
+  "summary": "Git credentials and remote repository access verified"
+}
+
+--- [4] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "REPOSITORY",
+  "status": "COMPLETED",
+  "summary": "Repository checked out, branch main and matchRoot confirmed"
+}
+
+--- [5] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "ENVIRONMENT",
+  "status": "COMPLETED",
+  "summary": "Prisma generate, migrations, seed, and clean database verified"
+}
+
+--- [6] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "BUILD",
+  "status": "COMPLETED",
+  "summary": "Next.js typecheck passed with zero errors"
+}
+
+--- [7] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "MATCH_LOGIN",
+  "backlogId": null,
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/auth/login",
+  "phase": "REQUESTED",
+  "httpStatus": null,
+  "requestId": "f34429ba-29b2-482f-a22a-1c6389bf40d8",
+  "summary": "Authenticating web session against Game Master"
+}
+
+--- [8] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "MATCH_LOGIN",
+  "backlogId": null,
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/auth/login",
+  "phase": "SUCCEEDED",
+  "httpStatus": 200,
+  "requestId": "f34429ba-29b2-482f-a22a-1c6389bf40d8",
+  "summary": "Authenticated successfully as CPL_digital_cuder"
+}
+
+--- [9] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "MATCH_LOGIN",
+  "status": "COMPLETED",
+  "summary": "Match login and assigned match page access verified"
+}
+
+--- [10] ENVIRONMENT_READY ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "ENVIRONMENT_READY",
+  "requestId": "prepare-7079d351-c428-4924-afb9-8fe5fa745845",
+  "repository": {
+    "url": "https://github.com/lqdung863/mtm-cpl",
+    "branch": "main",
+    "folder": "K0LA4Z5T"
+  },
+  "revision": "b59cc4590ffa91a36358f06991832c3274ba1ee7",
+  "build": "PASS",
+  "matchLogin": "PASS"
+}
+
+--- [11] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "GIT_AUTH",
+  "status": "IN_PROGRESS",
+  "summary": "Final preparation verification started."
+}
+
+--- [12] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "REPOSITORY",
+  "status": "IN_PROGRESS",
+  "summary": "Final preparation verification started."
+}
+
+--- [13] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "ENVIRONMENT",
+  "status": "IN_PROGRESS",
+  "summary": "Final preparation verification started."
+}
+
+--- [14] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "BUILD",
+  "status": "IN_PROGRESS",
+  "summary": "Final preparation verification started."
+}
+
+--- [15] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "MATCH_LOGIN",
+  "status": "IN_PROGRESS",
+  "summary": "Final preparation verification started."
+}
+
+--- [16] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "MATCH_LOGIN",
+  "backlogId": null,
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/auth/login",
+  "phase": "REQUESTED",
+  "httpStatus": null,
+  "requestId": "83fdfdb9-8b44-4c8f-88d8-566c23599f43",
+  "summary": "Authenticating web session against Game Master"
+}
+
+--- [17] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "MATCH_LOGIN",
+  "backlogId": null,
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/auth/login",
+  "phase": "SUCCEEDED",
+  "httpStatus": 200,
+  "requestId": "83fdfdb9-8b44-4c8f-88d8-566c23599f43",
+  "summary": "Authenticated successfully as CPL_digital_cuder"
+}
+
+--- [18] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "GIT_AUTH",
+  "status": "COMPLETED",
+  "summary": "Assigned remote access verified by git ls-remote."
+}
+
+--- [19] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "REPOSITORY",
+  "status": "COMPLETED",
+  "summary": "Exact checkout root, main branch and nested match root verified."
+}
+
+--- [20] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "ENVIRONMENT",
+  "status": "COMPLETED",
+  "summary": "Node, pnpm, prepared database and responsive development server verified."
+}
+
+--- [21] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "BUILD",
+  "status": "COMPLETED",
+  "summary": "Preparation helper confirmed typecheck PASS at the verified revision."
+}
+
+--- [22] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "MATCH_LOGIN",
+  "status": "COMPLETED",
+  "summary": "Authenticated Game Master login verified with HTTP 200."
+}
+
+--- [23] ENVIRONMENT_READY ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "ENVIRONMENT_READY",
+  "requestId": "prepare-7079d351-c428-4924-afb9-8fe5fa745845",
+  "repository": {
+    "url": "https://github.com/lqdung863/mtm-cpl",
+    "branch": "main",
+    "folder": "K0LA4Z5T"
+  },
+  "revision": "b59cc4590ffa91a36358f06991832c3274ba1ee7",
+  "build": "PASS",
+  "matchLogin": "PASS"
+}
+
+--- [24] BACKLOG_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "BACKLOG_STATUS",
+  "backlogId": "BUG-01",
+  "title": "Desktop sidebar obscures the main content",
+  "status": "DISCOVERED",
+  "revision": null,
+  "receiptId": null,
+  "summary": "Discovered backlog item BUG-01 (OPEN)"
+}
+
+--- [25] BACKLOG_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "BACKLOG_STATUS",
+  "backlogId": "BUG-02",
+  "title": "Amounts for VND clients are 100 times too large",
+  "status": "DISCOVERED",
+  "revision": null,
+  "receiptId": null,
+  "summary": "Discovered backlog item BUG-02 (OPEN)"
+}
+
+--- [26] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "START_BACKLOG",
+  "backlogId": "BUG-02",
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/backlogs/start",
+  "phase": "REQUESTED",
+  "httpStatus": null,
+  "requestId": "1bbc014e-581a-4cd9-9ddc-3de2a8370129",
+  "summary": "Requesting POST /api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/backlogs/start"
+}
+
+--- [27] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "START_BACKLOG",
+  "backlogId": "BUG-02",
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/backlogs/start",
+  "phase": "SUCCEEDED",
+  "httpStatus": 201,
+  "requestId": "1bbc014e-581a-4cd9-9ddc-3de2a8370129",
+  "summary": "POST /api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/backlogs/start succeeded with 201 in 1146ms"
+}
+
+--- [28] BACKLOG_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "BACKLOG_STATUS",
+  "backlogId": "BUG-02",
+  "title": "Amounts for VND clients are 100 times too large",
+  "status": "IN_PROGRESS",
+  "revision": null,
+  "receiptId": null,
+  "summary": "Started work on backlog item BUG-02"
+}
+
+--- [29] BACKLOG_TESTS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "BACKLOG_TESTS",
+  "backlogId": "BUG-02",
+  "status": "NOT_RUN",
+  "required": 0,
+  "executed": 0,
+  "passed": 0,
+  "failed": 0,
+  "skipped": 0,
+  "summary": "Test harness ready for BUG-02"
+}
+
+--- [30] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "COMPANY_MCP_TOOL",
+  "backlogId": null,
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/mcp/K0LA4Z5T",
+  "phase": "REQUESTED",
+  "httpStatus": null,
+  "requestId": "880ee384-dd7e-478b-a70e-c414b866ed12",
+  "summary": "Requesting POST /api/v1/mcp/K0LA4Z5T"
+}
+
+--- [31] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "COMPANY_MCP_TOOL",
+  "backlogId": null,
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/mcp/K0LA4Z5T",
+  "phase": "SUCCEEDED",
+  "httpStatus": 200,
+  "requestId": "880ee384-dd7e-478b-a70e-c414b866ed12",
+  "summary": "POST /api/v1/mcp/K0LA4Z5T succeeded with 200 in 284ms"
+}
+
+--- [32] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "START_BACKLOG",
+  "backlogId": "BUG-01",
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/backlogs/start",
+  "phase": "REQUESTED",
+  "httpStatus": null,
+  "requestId": "8c962df2-4e5d-42e9-9c80-bce3c2196bfc",
+  "summary": "Requesting POST /api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/backlogs/start"
+}
+
+--- [33] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "START_BACKLOG",
+  "backlogId": "BUG-01",
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/backlogs/start",
+  "phase": "SUCCEEDED",
+  "httpStatus": 201,
+  "requestId": "8c962df2-4e5d-42e9-9c80-bce3c2196bfc",
+  "summary": "POST /api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/backlogs/start succeeded with 201 in 333ms"
+}
+
+--- [34] BACKLOG_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "BACKLOG_STATUS",
+  "backlogId": "BUG-01",
+  "title": "Desktop sidebar obscures the main content",
+  "status": "IN_PROGRESS",
+  "revision": null,
+  "receiptId": null,
+  "summary": "Started work on backlog item BUG-01"
+}
+
+--- [35] BACKLOG_TESTS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "BACKLOG_TESTS",
+  "backlogId": "BUG-01",
+  "status": "NOT_RUN",
+  "required": 0,
+  "executed": 0,
+  "passed": 0,
+  "failed": 0,
+  "skipped": 0,
+  "summary": "Test harness ready for BUG-01"
+}
+
+--- [36] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "COMPANY_MCP_TOOL",
+  "backlogId": null,
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/mcp/K0LA4Z5T",
+  "phase": "REQUESTED",
+  "httpStatus": null,
+  "requestId": "a9f4e277-d2a9-47e0-96ab-4b3a6ff5c919",
+  "summary": "Requesting POST /api/v1/mcp/K0LA4Z5T"
+}
+
+--- [37] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "COMPANY_MCP_TOOL",
+  "backlogId": null,
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/mcp/K0LA4Z5T",
+  "phase": "SUCCEEDED",
+  "httpStatus": 200,
+  "requestId": "a9f4e277-d2a9-47e0-96ab-4b3a6ff5c919",
+  "summary": "POST /api/v1/mcp/K0LA4Z5T succeeded with 200 in 133ms"
+}
+
+--- [38] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "ENVIRONMENT",
+  "status": "IN_PROGRESS",
+  "summary": "Restoring development server after final health probe failed."
+}
+
+--- [39] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "GIT_AUTH",
+  "status": "COMPLETED",
+  "summary": "Git credentials and remote repository access verified"
+}
+
+--- [40] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "REPOSITORY",
+  "status": "COMPLETED",
+  "summary": "Repository checked out, branch main and matchRoot confirmed"
+}
+
+--- [41] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "ENVIRONMENT",
+  "status": "COMPLETED",
+  "summary": "Prisma generate, migrations, seed, and clean database verified"
+}
+
+--- [42] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "BUILD",
+  "status": "COMPLETED",
+  "summary": "Next.js typecheck passed with zero errors"
+}
+
+--- [43] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "MATCH_LOGIN",
+  "backlogId": null,
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/auth/login",
+  "phase": "REQUESTED",
+  "httpStatus": null,
+  "requestId": "071b3c40-f215-4731-9453-04d2fac4889d",
+  "summary": "Authenticating web session against Game Master"
+}
+
+--- [44] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "MATCH_LOGIN",
+  "backlogId": null,
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/auth/login",
+  "phase": "SUCCEEDED",
+  "httpStatus": 200,
+  "requestId": "071b3c40-f215-4731-9453-04d2fac4889d",
+  "summary": "Authenticated successfully as CPL_digital_cuder"
+}
+
+--- [45] PREPARATION_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "PREPARATION_STATUS",
+  "stage": "MATCH_LOGIN",
+  "status": "COMPLETED",
+  "summary": "Match login and assigned match page access verified"
+}
+
+--- [46] ENVIRONMENT_READY ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "ENVIRONMENT_READY",
+  "requestId": "prepare-7079d351-c428-4924-afb9-8fe5fa745845",
+  "repository": {
+    "url": "https://github.com/lqdung863/mtm-cpl",
+    "branch": "main",
+    "folder": "K0LA4Z5T"
+  },
+  "revision": "b407949d33d664818cbc66a5b6128e7ebc0aae1b",
+  "build": "PASS",
+  "matchLogin": "PASS"
+}
+
+--- [47] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "COMPANY_MCP_TOOL",
+  "backlogId": "BUG-02",
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/mcp/K0LA4Z5T",
+  "phase": "REQUESTED",
+  "httpStatus": null,
+  "requestId": "a952f016-7e3d-4678-a26c-349dcb53a093",
+  "summary": "Requesting POST /api/v1/mcp/K0LA4Z5T"
+}
+
+--- [48] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "COMPANY_MCP_TOOL",
+  "backlogId": "BUG-02",
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/mcp/K0LA4Z5T",
+  "phase": "SUCCEEDED",
+  "httpStatus": 200,
+  "requestId": "a952f016-7e3d-4678-a26c-349dcb53a093",
+  "summary": "POST /api/v1/mcp/K0LA4Z5T succeeded with 200 in 173ms"
+}
+
+--- [49] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "SUBMIT_BACKLOG",
+  "backlogId": "BUG-02",
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/submissions",
+  "phase": "REQUESTED",
+  "httpStatus": null,
+  "requestId": "cc39b97a-692c-4450-ab14-d37d63163381",
+  "summary": "Requesting POST /api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/submissions"
+}
+
+--- [50] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "SUBMIT_BACKLOG",
+  "backlogId": "BUG-02",
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/submissions",
+  "phase": "SUCCEEDED",
+  "httpStatus": 201,
+  "requestId": "cc39b97a-692c-4450-ab14-d37d63163381",
+  "summary": "POST /api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/submissions succeeded with 201 in 220ms"
+}
+
+--- [51] BACKLOG_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "BACKLOG_STATUS",
+  "backlogId": "BUG-02",
+  "title": "Amounts for VND clients are 100 times too large",
+  "status": "SUBMITTED",
+  "revision": "cfddedca14413e50e3e561c2d062da0b0272c5c2",
+  "receiptId": "b62137c4-3a27-4895-bb17-76b653246575",
+  "summary": "Successfully submitted BUG-02 (Receipt: b62137c4-3a27-4895-bb17-76b653246575)"
+}
+
+--- [52] BACKLOG_TESTS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "BACKLOG_TESTS",
+  "backlogId": "BUG-02",
+  "status": "PASSED",
+  "required": 4,
+  "executed": 4,
+  "passed": 4,
+  "failed": 0,
+  "skipped": 0,
+  "summary": "All 4 verification scenarios passed and submitted."
+}
+
+--- [53] BACKLOG_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "BACKLOG_STATUS",
+  "backlogId": "BUG-03",
+  "title": "Invoices paid in full stay partially paid",
+  "status": "DISCOVERED",
+  "revision": null,
+  "receiptId": null,
+  "summary": "Discovered backlog item BUG-03 (OPEN)"
+}
+
+--- [54] BACKLOG_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "BACKLOG_STATUS",
+  "backlogId": "CR-01",
+  "title": "Export the filtered invoice list as CSV",
+  "status": "DISCOVERED",
+  "revision": null,
+  "receiptId": null,
+  "summary": "Discovered backlog item CR-01 (OPEN)"
+}
+
+--- [55] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "START_BACKLOG",
+  "backlogId": "BUG-03",
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/backlogs/start",
+  "phase": "REQUESTED",
+  "httpStatus": null,
+  "requestId": "957926df-9e7b-4d92-a40c-70dd3c309971",
+  "summary": "Requesting POST /api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/backlogs/start"
+}
+
+--- [56] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "START_BACKLOG",
+  "backlogId": "BUG-03",
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/backlogs/start",
+  "phase": "SUCCEEDED",
+  "httpStatus": 201,
+  "requestId": "957926df-9e7b-4d92-a40c-70dd3c309971",
+  "summary": "POST /api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/backlogs/start succeeded with 201 in 357ms"
+}
+
+--- [57] BACKLOG_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "BACKLOG_STATUS",
+  "backlogId": "BUG-03",
+  "title": "Invoices paid in full stay partially paid",
+  "status": "IN_PROGRESS",
+  "revision": null,
+  "receiptId": null,
+  "summary": "Started work on backlog item BUG-03"
+}
+
+--- [58] BACKLOG_TESTS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "BACKLOG_TESTS",
+  "backlogId": "BUG-03",
+  "status": "NOT_RUN",
+  "required": 0,
+  "executed": 0,
+  "passed": 0,
+  "failed": 0,
+  "skipped": 0,
+  "summary": "Test harness ready for BUG-03"
+}
+
+--- [59] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "COMPANY_MCP_TOOL",
+  "backlogId": "BUG-01",
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/mcp/K0LA4Z5T",
+  "phase": "REQUESTED",
+  "httpStatus": null,
+  "requestId": "80cee429-aa07-44d7-9237-42e9a3165fe6",
+  "summary": "Requesting POST /api/v1/mcp/K0LA4Z5T"
+}
+
+--- [60] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "COMPANY_MCP_TOOL",
+  "backlogId": "BUG-01",
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/mcp/K0LA4Z5T",
+  "phase": "SUCCEEDED",
+  "httpStatus": 200,
+  "requestId": "80cee429-aa07-44d7-9237-42e9a3165fe6",
+  "summary": "POST /api/v1/mcp/K0LA4Z5T succeeded with 200 in 194ms"
+}
+
+--- [61] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "START_BACKLOG",
+  "backlogId": "CR-01",
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/backlogs/start",
+  "phase": "REQUESTED",
+  "httpStatus": null,
+  "requestId": "0a71191f-c707-46bc-bb14-00ed94502092",
+  "summary": "Requesting POST /api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/backlogs/start"
+}
+
+--- [62] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "START_BACKLOG",
+  "backlogId": "CR-01",
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/backlogs/start",
+  "phase": "SUCCEEDED",
+  "httpStatus": 201,
+  "requestId": "0a71191f-c707-46bc-bb14-00ed94502092",
+  "summary": "POST /api/v1/matches/d615e07d-6e31-4366-ad1b-6de9512c1f9d/backlogs/start succeeded with 201 in 275ms"
+}
+
+--- [63] BACKLOG_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "BACKLOG_STATUS",
+  "backlogId": "CR-01",
+  "title": "Export the filtered invoice list as CSV",
+  "status": "IN_PROGRESS",
+  "revision": null,
+  "receiptId": null,
+  "summary": "Started work on backlog item CR-01"
+}
+
+--- [64] BACKLOG_TESTS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "BACKLOG_TESTS",
+  "backlogId": "CR-01",
+  "status": "NOT_RUN",
+  "required": 0,
+  "executed": 0,
+  "passed": 0,
+  "failed": 0,
+  "skipped": 0,
+  "summary": "Test harness ready for CR-01"
+}
+
+--- [65] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "COMPANY_MCP_TOOL",
+  "backlogId": "BUG-01",
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/mcp/K0LA4Z5T",
+  "phase": "REQUESTED",
+  "httpStatus": null,
+  "requestId": "4dd9ebd8-2267-40ae-8b66-ef88eb8e6f0d",
+  "summary": "Requesting POST /api/v1/mcp/K0LA4Z5T"
+}
+
+--- [66] GAME_MASTER_API ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "GAME_MASTER_API",
+  "operation": "COMPANY_MCP_TOOL",
+  "backlogId": "BUG-01",
+  "method": "POST",
+  "origin": "https://masterthemachine.tech",
+  "path": "/api/v1/mcp/K0LA4Z5T",
+  "phase": "SUCCEEDED",
+  "httpStatus": 200,
+  "requestId": "4dd9ebd8-2267-40ae-8b66-ef88eb8e6f0d",
+  "summary": "POST /api/v1/mcp/K0LA4Z5T succeeded with 200 in 141ms"
+}
+
+--- [67] BACKLOG_STATUS ---
+{
+  "schemaVersion": 1,
+  "playerSessionId": "d42dd391-9e1c-4ff8-af42-4ece36d46198",
+  "type": "BACKLOG_STATUS",
+  "backlogId": "BUG-02",
+  "status": "IN_PROGRESS",
+  "summary": "Original submission accepted; corrected linked-payment evidence pushed at e9e1c9e, replacement rejected HTTP 409 ALREADY_SUBMITTED. (pending submission confirmation)",
+  "revision": null,
+  "receiptId": null,
+  "title": "Amounts for VND clients are 100 times too large"
+}

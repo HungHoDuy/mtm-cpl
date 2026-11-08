@@ -1,0 +1,1246 @@
+[
+  {
+    "timestamp": "2026-11-04T07:56:42.008Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:56:43.318Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T07:56:49.202Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:56:49.277Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T07:56:58.732Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:57:00.488Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T07:57:12.299Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:57:23.241Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T07:57:26.183Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:57:31.239Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T07:57:33.497Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:57:38.535Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T07:57:40.937Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:57:45.976Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T07:57:50.026Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:57:50.117Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T07:58:00.155Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:58:01.832Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T07:58:10.210Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:58:15.248Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T07:58:20.603Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:58:24.504Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T07:58:27.001Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:58:30.880Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T07:58:42.490Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:58:46.478Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T07:58:53.581Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:58:56.631Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T07:59:12.161Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:59:13.386Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T07:59:21.987Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:59:23.481Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T07:59:32.746Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:59:43.034Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T07:59:48.641Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:59:48.860Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T07:59:52.219Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T07:59:52.831Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:00:03.703Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:00:14.561Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:00:17.647Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:00:22.713Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:00:25.098Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:00:30.147Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:00:33.457Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:00:33.596Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:00:37.520Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:00:48.366Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:00:52.250Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:00:57.301Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:00:59.767Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:01:04.832Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:01:07.628Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:01:12.681Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:01:15.712Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:01:15.887Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:01:31.874Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:01:34.966Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:01:54.773Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:01:56.073Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:02:05.339Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:02:06.801Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:02:18.548Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:02:20.684Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:02:25.184Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:02:29.781Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:02:33.685Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:02:44.556Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:02:47.049Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:02:51.762Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:02:56.596Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:03:00.539Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:03:17.185Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:03:20.260Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:03:26.208Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:03:29.333Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:03:49.051Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:03:50.191Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:04:03.309Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:04:04.505Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:04:13.268Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:04:23.568Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:04:30.839Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:04:31.024Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:04:41.265Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:04:42.442Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:04:53.878Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:04:55.087Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:05:06.053Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:05:16.320Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:05:23.663Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:05:23.782Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:05:33.030Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:05:34.508Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:05:43.841Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:05:54.161Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:05:59.022Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:05:59.396Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:06:21.049Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:06:22.373Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:06:55.312Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:06:56.421Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:07:06.474Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:07:06.684Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:07:27.131Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:07:36.844Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:07:44.525Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:07:51.394Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:08:02.213Z",
+    "kind": "assistant",
+    "text": "[{\"type\":\"output_text\",\"text\":\"The radar returned the already-started highest-priority item: BUG-02, with an 18-minute deadline. Its evidence fixture is under the canonical answer directory. I’m traci"
+  },
+  {
+    "timestamp": "2026-11-04T08:08:12.018Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:08:14.374Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:08:22.068Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:08:23.329Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:08:40.578Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:08:41.878Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:08:58.053Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:08:59.088Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:09:17.642Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:09:18.580Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:09:31.248Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:09:32.404Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:10:33.254Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:10:33.507Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:10:42.591Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:10:43.677Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:10:56.467Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:10:57.420Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:11:05.248Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:11:06.085Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:11:37.601Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:11:38.713Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:12:05.066Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:12:05.797Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:12:23.654Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:12:24.710Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:12:37.917Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:12:41.142Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:12:46.056Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:12:47.711Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:12:57.004Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:12:58.070Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:13:03.875Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:13:05.019Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:13:49.419Z",
+    "kind": "assistant",
+    "text": "[{\"type\":\"output_text\",\"text\":\"The source confirms the bug: both dialogs used the workspace currency factor, so VND input was scaled as if it were USD; payment rows also omitted the company currency. "
+  },
+  {
+    "timestamp": "2026-11-04T08:14:11.622Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:14:12.594Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:14:31.971Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:14:42.779Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:14:46.185Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:14:51.237Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:14:53.672Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:14:58.736Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:15:01.227Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:15:06.282Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:15:08.546Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:15:13.589Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:15:16.372Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:15:16.741Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:15:24.883Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:15:35.665Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:15:47.875Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:15:48.194Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:15:51.946Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:16:00.747Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:16:15.907Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:16:17.117Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:16:21.443Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:16:29.917Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:16:44.343Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:16:44.694Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:16:48.359Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:16:57.187Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:17:05.252Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:17:05.534Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:17:09.728Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:17:18.265Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:17:38.456Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:17:38.742Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:17:45.138Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:17:55.872Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:17:59.829Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:18:00.203Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:18:10.918Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:18:11.145Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:18:15.175Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:18:16.990Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:18:44.426Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:18:44.818Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:18:48.868Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:18:50.279Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:19:04.969Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:19:05.831Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:19:22.578Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:19:23.557Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:19:51.315Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:19:52.863Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:19:58.634Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:19:59.456Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:20:19.420Z",
+    "kind": "assistant",
+    "text": "[{\"type\":\"output_text\",\"text\":\"I found an urgent-preemption marker in matchRoot while preparing the VND fixture reset. I’m checking its key and the current working-tree state before proceeding, since "
+  },
+  {
+    "timestamp": "2026-11-04T08:20:21.988Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:20:23.431Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:20:32.014Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:20:37.138Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:20:43.582Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:20:46.525Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:20:57.264Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:20:58.140Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:21:08.450Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:21:08.770Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:21:13.759Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:21:22.576Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:21:51.375Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:21:52.229Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:22:22.222Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:22:23.360Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:22:29.389Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:22:30.132Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:23:08.863Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:23:09.558Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:23:46.293Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:23:47.058Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:25:23.758Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:25:24.372Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:26:06.152Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:26:07.375Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:26:30.228Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:26:39.330Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:26:48.128Z",
+    "kind": "assistant",
+    "text": "[{\"type\":\"output_text\",\"text\":\"PI-01 was accepted. The log audit identified five paid invoices that received reminders; the earliest wrongful send was `rem-CPL-91d2`. The helper reports BUG-02 resumed"
+  },
+  {
+    "timestamp": "2026-11-04T08:26:52.382Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:26:53.671Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:27:09.245Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:27:10.578Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:27:30.869Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:27:31.691Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:28:11.810Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:28:12.879Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:28:35.432Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:28:36.597Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:28:49.488Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:28:50.886Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:29:19.436Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:29:20.473Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:29:29.714Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:29:31.603Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:29:35.824Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:29:44.243Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:29:58.507Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:30:01.492Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:30:22.618Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:30:27.605Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:30:34.379Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:30:45.226Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:30:48.864Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:30:49.278Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:31:00.632Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:31:01.825Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:31:06.835Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:31:08.825Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:31:15.476Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:31:25.906Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:31:29.106Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:31:32.509Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:31:40.102Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:31:41.936Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:32:36.136Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:32:46.600Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:32:49.762Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:32:54.808Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:32:57.484Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:33:02.530Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:33:05.210Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:33:06.792Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:33:21.172Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:33:26.087Z",
+    "kind": "call"
+  },
+  {
+    "timestamp": "2026-11-04T08:33:33.045Z",
+    "kind": "call",
+    "name": "exec"
+  },
+  {
+    "timestamp": "2026-11-04T08:33:41.905Z",
+    "kind": "call"
+  }
+]

@@ -1,0 +1,1335 @@
+{
+  "match": {
+    "id": "EBBISGUW",
+    "name": "[Warm-up 2] Group B Match 5",
+    "status": "FINISHED",
+    "timer": {
+      "elapsedSec": 2400,
+      "remainingSec": 0,
+      "configuredDurationSec": 2400
+    }
+  },
+  "presentation": {
+    "scene": "TEAM_PROGRESS",
+    "showScoreboard": false,
+    "scoreboardFrozen": false,
+    "focusedTeamId": null,
+    "overlay": null,
+    "version": 1
+  },
+  "project": {
+    "name": "Actual Budget",
+    "summary": "Actual Budget is an open-source, local-first personal finance app based on envelope budgeting. It runs in the browser against a local database and syncs through an optional server.",
+    "features": [
+      "Accounts: on-budget and off-budget accounts, transfers between them with linked counterparts, reconciliation",
+      "Envelope budget: monthly budgeted, spent and balance per category, carry-over, To Budget",
+      "Bank file import: OFX, QIF, CSV and CAMT statements with matching against existing transactions",
+      "Rules: conditions and actions that set payees, categories, notes and splits, including percent splits and templates",
+      "Schedules: recurring and one-off scheduled transactions with upcoming, due, missed and paid states",
+      "Payees: payee management, merging and unused-payee cleanup"
+    ]
+  },
+  "currentStep": {
+    "stepOrder": 6,
+    "title": "Wave 5. Advanced features: TASK-11",
+    "publicSummary": "Wave 5. Advanced features: TASK-11"
+  },
+  "latestEvent": {
+    "key": "WAVE-5",
+    "title": "Wave 5. Advanced features: TASK-11",
+    "summary": "New backlog items: TASK-11"
+  },
+  "events": [
+    {
+      "key": "WAVE-5",
+      "title": "Wave 5. Advanced features: TASK-11",
+      "summary": "New backlog items: TASK-11",
+      "publishedAt": "2026-11-06T05:12:30.144Z"
+    },
+    {
+      "key": "WAVE-4",
+      "title": "Wave 4. Performing: TASK-06, TASK-07",
+      "summary": "New backlog items: TASK-06, TASK-07",
+      "publishedAt": "2026-11-06T05:09:29.943Z"
+    },
+    {
+      "key": "WAVE-3",
+      "title": "Wave 3. High pressure: TASK-05, TASK-12, PI-03",
+      "summary": "New backlog items: TASK-05, TASK-12, PI-03",
+      "publishedAt": "2026-11-06T05:02:29.618Z"
+    },
+    {
+      "key": "WAVE-2",
+      "title": "Wave 2. Stabilizing: CR-07, BUG-11, PI-02, TASK-10",
+      "summary": "New backlog items: CR-07, BUG-11, PI-02, TASK-10",
+      "publishedAt": "2026-11-06T04:57:30.309Z"
+    },
+    {
+      "key": "WAVE-1",
+      "title": "Wave 1. Take over: TASK-08, BUG-09",
+      "summary": "New backlog items: TASK-08, BUG-09",
+      "publishedAt": "2026-11-06T04:50:28.706Z"
+    }
+  ],
+  "backlog": [
+    {
+      "key": "TASK-08",
+      "title": "Integration test suite: money movement between accounts",
+      "type": "TASK",
+      "status": "CLOSED",
+      "deadlineMinutes": null,
+      "revealedElapsedSec": 0,
+      "points": 100,
+      "textVersion": "b431fa1a4748"
+    },
+    {
+      "key": "BUG-09",
+      "title": "Schedule status on the edge of the upcoming window",
+      "type": "BUG",
+      "status": "CLOSED",
+      "deadlineMinutes": null,
+      "revealedElapsedSec": 0,
+      "points": 80,
+      "textVersion": "1e69ed20e812"
+    },
+    {
+      "key": "CR-07",
+      "title": "Reconciliation audit page",
+      "type": "CR",
+      "status": "CLOSED",
+      "deadlineMinutes": 20,
+      "revealedElapsedSec": 421,
+      "points": 100,
+      "textVersion": "f84f05e03d11"
+    },
+    {
+      "key": "BUG-11",
+      "title": "Support ticket SUP-9901: a customer's books do not match the bank",
+      "type": "BUG",
+      "status": "CLOSED",
+      "deadlineMinutes": null,
+      "revealedElapsedSec": 421,
+      "points": 100,
+      "textVersion": "798256765f75"
+    },
+    {
+      "key": "PI-02",
+      "title": "Transactions land in the wrong category",
+      "type": "PI",
+      "status": "CLOSED",
+      "deadlineMinutes": null,
+      "revealedElapsedSec": 421,
+      "points": 90,
+      "textVersion": "6430226544c7"
+    },
+    {
+      "key": "TASK-10",
+      "title": "[Heavy Task] Multi-bank statement archive audit",
+      "type": "TASK",
+      "status": "CLOSED",
+      "deadlineMinutes": 30,
+      "revealedElapsedSec": 421,
+      "points": 100,
+      "textVersion": "78a46664695b"
+    },
+    {
+      "key": "TASK-05",
+      "title": "Budget month range",
+      "type": "TASK",
+      "status": "CLOSED",
+      "deadlineMinutes": null,
+      "revealedElapsedSec": 720,
+      "points": 60,
+      "textVersion": "d2493f286b56"
+    },
+    {
+      "key": "TASK-12",
+      "title": "[Heavy Task] Sync storm: which budget cells were really corrupted",
+      "type": "TASK",
+      "status": "CLOSED",
+      "deadlineMinutes": null,
+      "revealedElapsedSec": 720,
+      "points": 100,
+      "textVersion": "344de20a2563"
+    },
+    {
+      "key": "PI-03",
+      "title": "Scheduled transactions posted with wrong amounts",
+      "type": "PI",
+      "status": "CLOSED",
+      "deadlineMinutes": null,
+      "revealedElapsedSec": 720,
+      "points": 80,
+      "textVersion": "6795047f7411"
+    },
+    {
+      "key": "TASK-06",
+      "title": "Rule operators",
+      "type": "TASK",
+      "status": "CLOSED",
+      "deadlineMinutes": null,
+      "revealedElapsedSec": 1141,
+      "points": 60,
+      "textVersion": "eb736aa8b454"
+    },
+    {
+      "key": "TASK-07",
+      "title": "Statement pack for bank file import",
+      "type": "TASK",
+      "status": "CLOSED",
+      "deadlineMinutes": 15,
+      "revealedElapsedSec": 1141,
+      "points": 50,
+      "textVersion": "cbfeef30ee52"
+    },
+    {
+      "key": "TASK-11",
+      "title": "CFO audit voucher for October 2025",
+      "type": "TASK",
+      "status": "CLOSED",
+      "deadlineMinutes": null,
+      "revealedElapsedSec": 1321,
+      "points": 80,
+      "textVersion": "983f02f27d5e"
+    }
+  ],
+  "steps": [
+    {
+      "stepOrder": 1,
+      "title": "Start preparation",
+      "publicSummary": "Application briefing is available for Digital Cuder.",
+      "status": "ACTIVATED",
+      "suggestedDurationSec": 300
+    },
+    {
+      "stepOrder": 2,
+      "title": "Wave 1. Take over: TASK-08, BUG-09",
+      "publicSummary": "Wave 1. Take over: TASK-08, BUG-09",
+      "status": "ACTIVATED",
+      "suggestedDurationSec": 0
+    },
+    {
+      "stepOrder": 3,
+      "title": "Wave 2. Stabilizing: CR-07, BUG-11, PI-02, TASK-10",
+      "publicSummary": "Wave 2. Stabilizing: CR-07, BUG-11, PI-02, TASK-10",
+      "status": "ACTIVATED",
+      "suggestedDurationSec": 420
+    },
+    {
+      "stepOrder": 4,
+      "title": "Wave 3. High pressure: TASK-05, TASK-12, PI-03",
+      "publicSummary": "Wave 3. High pressure: TASK-05, TASK-12, PI-03",
+      "status": "ACTIVATED",
+      "suggestedDurationSec": 720
+    },
+    {
+      "stepOrder": 5,
+      "title": "Wave 4. Performing: TASK-06, TASK-07",
+      "publicSummary": "Wave 4. Performing: TASK-06, TASK-07",
+      "status": "ACTIVATED",
+      "suggestedDurationSec": 1140
+    },
+    {
+      "stepOrder": 6,
+      "title": "Wave 5. Advanced features: TASK-11",
+      "publicSummary": "Wave 5. Advanced features: TASK-11",
+      "status": "ACTIVATED",
+      "suggestedDurationSec": 1320
+    }
+  ],
+  "activity": [
+    {
+      "at": "2026-11-06T05:30:29.582Z",
+      "kind": "match",
+      "text": "Match finished",
+      "teamCode": null,
+      "backlogItemKey": null
+    },
+    {
+      "at": "2026-11-06T05:30:29.582Z",
+      "kind": "match",
+      "text": "Submissions closed",
+      "teamCode": null,
+      "backlogItemKey": null
+    },
+    {
+      "at": "2026-11-06T05:30:24.270Z",
+      "kind": "submission",
+      "text": "Team CPL submitted PI-03 (Scheduled transa…)",
+      "teamCode": "CPL",
+      "backlogItemKey": "PI-03"
+    },
+    {
+      "at": "2026-11-06T05:27:52.764Z",
+      "kind": "submission",
+      "text": "Team CPL submitted TASK-12 ([Heavy Task] Syn…)",
+      "teamCode": "CPL",
+      "backlogItemKey": "TASK-12"
+    },
+    {
+      "at": "2026-11-06T05:27:31.280Z",
+      "kind": "match",
+      "text": "Submissions closed",
+      "teamCode": null,
+      "backlogItemKey": null
+    },
+    {
+      "at": "2026-11-06T05:26:57.814Z",
+      "kind": "submission",
+      "text": "Team CPL submitted TASK-11 (CFO audit vouche…)",
+      "teamCode": "CPL",
+      "backlogItemKey": "TASK-11"
+    },
+    {
+      "at": "2026-11-06T05:26:54.270Z",
+      "kind": "submission",
+      "text": "Team CPL submitted BUG-09 (Schedule status …)",
+      "teamCode": "CPL",
+      "backlogItemKey": "BUG-09"
+    },
+    {
+      "at": "2026-11-06T05:25:42.235Z",
+      "kind": "submission",
+      "text": "Team CPL submitted TASK-06 (Rule operators)",
+      "teamCode": "CPL",
+      "backlogItemKey": "TASK-06"
+    },
+    {
+      "at": "2026-11-06T05:25:30.508Z",
+      "kind": "submission",
+      "text": "Team CPL submitted TASK-05 (Budget month range)",
+      "teamCode": "CPL",
+      "backlogItemKey": "TASK-05"
+    },
+    {
+      "at": "2026-11-06T05:24:30.919Z",
+      "kind": "match",
+      "text": "Submissions closed",
+      "teamCode": null,
+      "backlogItemKey": null
+    },
+    {
+      "at": "2026-11-06T05:22:23.955Z",
+      "kind": "submission",
+      "text": "Team CPL submitted BUG-11 (Support ticket S…)",
+      "teamCode": "CPL",
+      "backlogItemKey": "BUG-11"
+    },
+    {
+      "at": "2026-11-06T05:18:36.659Z",
+      "kind": "submission",
+      "text": "Team MS5 submitted TASK-07 (Statement pack f…)",
+      "teamCode": "MS5",
+      "backlogItemKey": "TASK-07"
+    }
+  ],
+  "teamActivity": [
+    {
+      "at": "2026-11-06T05:30:24.270Z",
+      "kind": "submission",
+      "text": "Team CPL submitted PI-03",
+      "teamCode": "CPL",
+      "backlogItemKey": "PI-03"
+    },
+    {
+      "at": "2026-11-06T05:27:52.764Z",
+      "kind": "submission",
+      "text": "Team CPL submitted TASK-12",
+      "teamCode": "CPL",
+      "backlogItemKey": "TASK-12"
+    },
+    {
+      "at": "2026-11-06T05:26:57.814Z",
+      "kind": "submission",
+      "text": "Team CPL submitted TASK-11",
+      "teamCode": "CPL",
+      "backlogItemKey": "TASK-11"
+    },
+    {
+      "at": "2026-11-06T05:26:54.270Z",
+      "kind": "submission",
+      "text": "Team CPL submitted BUG-09",
+      "teamCode": "CPL",
+      "backlogItemKey": "BUG-09"
+    },
+    {
+      "at": "2026-11-06T05:25:42.235Z",
+      "kind": "submission",
+      "text": "Team CPL submitted TASK-06",
+      "teamCode": "CPL",
+      "backlogItemKey": "TASK-06"
+    }
+  ],
+  "teams": [
+    {
+      "teamId": "189b829d-da77-485e-9151-d79b00bc186c",
+      "teamCode": "MS5",
+      "teamName": "[GPE] MindShift 5",
+      "passedCount": 0,
+      "totalPoints": 984,
+      "computerAccessUsed": 0,
+      "nonStandardModes": [],
+      "completionTimeSec": 2400,
+      "cells": [
+        {
+          "backlogItemKey": "TASK-08",
+          "title": "Integration test suite: money movement between accounts",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 84,
+          "graderPoints": 84,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "BUG-09",
+          "title": "Schedule status on the edge of the upcoming window",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 80,
+          "graderPoints": 80,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "CR-07",
+          "title": "Reconciliation audit page",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 100,
+          "graderPoints": 100,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "BUG-11",
+          "title": "Support ticket SUP-9901: a customer's books do not match the bank",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 100,
+          "graderPoints": 100,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "PI-02",
+          "title": "Transactions land in the wrong category",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 90,
+          "graderPoints": 90,
+          "piSubmitOrder": 1,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-10",
+          "title": "[Heavy Task] Multi-bank statement archive audit",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 100,
+          "graderPoints": 100,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-05",
+          "title": "Budget month range",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 60,
+          "graderPoints": 60,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-12",
+          "title": "[Heavy Task] Sync storm: which budget cells were really corrupted",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 100,
+          "graderPoints": 100,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "PI-03",
+          "title": "Scheduled transactions posted with wrong amounts",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 80,
+          "graderPoints": 80,
+          "piSubmitOrder": 1,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-06",
+          "title": "Rule operators",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 60,
+          "graderPoints": 60,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-07",
+          "title": "Statement pack for bank file import",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 50,
+          "graderPoints": 50,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-11",
+          "title": "CFO audit voucher for October 2025",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 80,
+          "graderPoints": 80,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        }
+      ],
+      "submitted": 12,
+      "total": 12,
+      "lastSubmittedAt": "2026-11-06T05:18:36.659Z",
+      "totalTimeSec": 1687,
+      "preparationComplete": true
+    },
+    {
+      "teamId": "b8361640-5140-49a3-97b9-7522c4b698bb",
+      "teamCode": "CPL",
+      "teamName": "[FHM] Còpilot",
+      "passedCount": 0,
+      "totalPoints": 813,
+      "computerAccessUsed": 0,
+      "nonStandardModes": [],
+      "completionTimeSec": 2400,
+      "cells": [
+        {
+          "backlogItemKey": "TASK-08",
+          "title": "Integration test suite: money movement between accounts",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 80,
+          "graderPoints": 80,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "BUG-09",
+          "title": "Schedule status on the edge of the upcoming window",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 80,
+          "graderPoints": 80,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "CR-07",
+          "title": "Reconciliation audit page",
+          "scoreStatus": "WORKING",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "WORKING",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "BUG-11",
+          "title": "Support ticket SUP-9901: a customer's books do not match the bank",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 100,
+          "graderPoints": 100,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "PI-02",
+          "title": "Transactions land in the wrong category",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 81,
+          "graderPoints": 81,
+          "piSubmitOrder": 2,
+          "piDeduction": 9
+        },
+        {
+          "backlogItemKey": "TASK-10",
+          "title": "[Heavy Task] Multi-bank statement archive audit",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 100,
+          "graderPoints": 100,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-05",
+          "title": "Budget month range",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 60,
+          "graderPoints": 60,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-12",
+          "title": "[Heavy Task] Sync storm: which budget cells were really corrupted",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 100,
+          "graderPoints": 100,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "PI-03",
+          "title": "Scheduled transactions posted with wrong amounts",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 72,
+          "graderPoints": 72,
+          "piSubmitOrder": 2,
+          "piDeduction": 8
+        },
+        {
+          "backlogItemKey": "TASK-06",
+          "title": "Rule operators",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 60,
+          "graderPoints": 60,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-07",
+          "title": "Statement pack for bank file import",
+          "scoreStatus": "WORKING",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "WORKING",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-11",
+          "title": "CFO audit voucher for October 2025",
+          "scoreStatus": "GRADED",
+          "verdict": null,
+          "attemptNo": 1,
+          "workStatus": "SUBMITTED",
+          "points": 80,
+          "graderPoints": 80,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        }
+      ],
+      "submitted": 10,
+      "total": 12,
+      "lastSubmittedAt": "2026-11-06T05:30:24.270Z",
+      "totalTimeSec": null,
+      "preparationComplete": true
+    },
+    {
+      "teamId": "4c2b4182-c247-4220-b900-d846253ad102",
+      "teamCode": "AFD",
+      "teamName": "[GHC] Agentic Foundry",
+      "passedCount": 0,
+      "totalPoints": 0,
+      "computerAccessUsed": 0,
+      "nonStandardModes": [],
+      "completionTimeSec": 2400,
+      "cells": [
+        {
+          "backlogItemKey": "TASK-08",
+          "title": "Integration test suite: money movement between accounts",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "BUG-09",
+          "title": "Schedule status on the edge of the upcoming window",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "CR-07",
+          "title": "Reconciliation audit page",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "BUG-11",
+          "title": "Support ticket SUP-9901: a customer's books do not match the bank",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "PI-02",
+          "title": "Transactions land in the wrong category",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-10",
+          "title": "[Heavy Task] Multi-bank statement archive audit",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-05",
+          "title": "Budget month range",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-12",
+          "title": "[Heavy Task] Sync storm: which budget cells were really corrupted",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "PI-03",
+          "title": "Scheduled transactions posted with wrong amounts",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-06",
+          "title": "Rule operators",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-07",
+          "title": "Statement pack for bank file import",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-11",
+          "title": "CFO audit voucher for October 2025",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        }
+      ],
+      "submitted": 0,
+      "total": 12,
+      "lastSubmittedAt": null,
+      "totalTimeSec": null,
+      "preparationComplete": false
+    },
+    {
+      "teamId": "5a72c0fb-2600-4d8a-8c57-eddfbb33959e",
+      "teamCode": "EDD",
+      "teamName": "[EBS] Đại Đồng",
+      "passedCount": 0,
+      "totalPoints": 0,
+      "computerAccessUsed": 0,
+      "nonStandardModes": [],
+      "completionTimeSec": 2400,
+      "cells": [
+        {
+          "backlogItemKey": "TASK-08",
+          "title": "Integration test suite: money movement between accounts",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "BUG-09",
+          "title": "Schedule status on the edge of the upcoming window",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "CR-07",
+          "title": "Reconciliation audit page",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "BUG-11",
+          "title": "Support ticket SUP-9901: a customer's books do not match the bank",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "PI-02",
+          "title": "Transactions land in the wrong category",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-10",
+          "title": "[Heavy Task] Multi-bank statement archive audit",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-05",
+          "title": "Budget month range",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-12",
+          "title": "[Heavy Task] Sync storm: which budget cells were really corrupted",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "PI-03",
+          "title": "Scheduled transactions posted with wrong amounts",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-06",
+          "title": "Rule operators",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-07",
+          "title": "Statement pack for bank file import",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-11",
+          "title": "CFO audit voucher for October 2025",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        }
+      ],
+      "submitted": 0,
+      "total": 12,
+      "lastSubmittedAt": null,
+      "totalTimeSec": null,
+      "preparationComplete": false
+    },
+    {
+      "teamId": "c4406c06-771b-4975-998a-6d5991ca64e5",
+      "teamCode": "LUA",
+      "teamName": "[F1] Lúa ơi",
+      "passedCount": 0,
+      "totalPoints": 0,
+      "computerAccessUsed": 0,
+      "nonStandardModes": [],
+      "completionTimeSec": 2400,
+      "cells": [
+        {
+          "backlogItemKey": "TASK-08",
+          "title": "Integration test suite: money movement between accounts",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "BUG-09",
+          "title": "Schedule status on the edge of the upcoming window",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "CR-07",
+          "title": "Reconciliation audit page",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "BUG-11",
+          "title": "Support ticket SUP-9901: a customer's books do not match the bank",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "PI-02",
+          "title": "Transactions land in the wrong category",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-10",
+          "title": "[Heavy Task] Multi-bank statement archive audit",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-05",
+          "title": "Budget month range",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-12",
+          "title": "[Heavy Task] Sync storm: which budget cells were really corrupted",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "PI-03",
+          "title": "Scheduled transactions posted with wrong amounts",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-06",
+          "title": "Rule operators",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-07",
+          "title": "Statement pack for bank file import",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-11",
+          "title": "CFO audit voucher for October 2025",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        }
+      ],
+      "submitted": 0,
+      "total": 12,
+      "lastSubmittedAt": null,
+      "totalTimeSec": null,
+      "preparationComplete": false
+    },
+    {
+      "teamId": "bf006a3c-bab3-4ae4-bdf0-16ff61b65ea1",
+      "teamCode": "TAI",
+      "teamName": "[FHN] TurtleAI",
+      "passedCount": 0,
+      "totalPoints": 0,
+      "computerAccessUsed": 0,
+      "nonStandardModes": [],
+      "completionTimeSec": 2400,
+      "cells": [
+        {
+          "backlogItemKey": "TASK-08",
+          "title": "Integration test suite: money movement between accounts",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "BUG-09",
+          "title": "Schedule status on the edge of the upcoming window",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "CR-07",
+          "title": "Reconciliation audit page",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "BUG-11",
+          "title": "Support ticket SUP-9901: a customer's books do not match the bank",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "PI-02",
+          "title": "Transactions land in the wrong category",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-10",
+          "title": "[Heavy Task] Multi-bank statement archive audit",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-05",
+          "title": "Budget month range",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-12",
+          "title": "[Heavy Task] Sync storm: which budget cells were really corrupted",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "PI-03",
+          "title": "Scheduled transactions posted with wrong amounts",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-06",
+          "title": "Rule operators",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-07",
+          "title": "Statement pack for bank file import",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        },
+        {
+          "backlogItemKey": "TASK-11",
+          "title": "CFO audit voucher for October 2025",
+          "scoreStatus": "NONE",
+          "verdict": null,
+          "attemptNo": null,
+          "workStatus": "NOT_STARTED",
+          "points": null,
+          "graderPoints": null,
+          "piSubmitOrder": null,
+          "piDeduction": null
+        }
+      ],
+      "submitted": 0,
+      "total": 12,
+      "lastSubmittedAt": null,
+      "totalTimeSec": null,
+      "preparationComplete": false
+    }
+  ],
+  "scoreboard": {
+    "frozen": false,
+    "capturedAt": null
+  }
+}
