@@ -186,22 +186,6 @@ export async function initAuthSession(options = {}) {
  * Fast helper to launch host browser, bind storageState.json, and enforce 4s timeouts.
  */
 export async function createCapturePage(options = {}) {
-  // 🚨 Fail-Fast Circuit Breaker: Halt immediately if an urgent Product Incident is live
-  const lockCandidates = [
-    path.resolve(process.cwd(), '..', '.URGENT_PI_LOCK'),
-    path.resolve(process.cwd(), '.URGENT_PI_LOCK'),
-    path.resolve(process.cwd(), '..', '..', '.URGENT_PI_LOCK')
-  ];
-  for (const lc of lockCandidates) {
-    if (fs.existsSync(lc)) {
-      throw new Error(
-        '\n🚨 [CRITICAL HALT] PRODUCT INCIDENT IS LIVE! 🚨\n' +
-        'Evidence capture for non-PI work is suspended to protect 160 Speed Race points.\n' +
-        'DO NOT debug Playwright locators. Call get_next_task() immediately!\n'
-      );
-    }
-  }
-
   const {
     width = 1440,
     height = 900,

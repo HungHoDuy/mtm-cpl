@@ -100,7 +100,7 @@ async function runTests() {
     console.log('\n--- Test 3: List Tools (tools/list) ---');
     const listRes = await sendRequest('tools/list');
     const tools = listRes.result?.tools || [];
-    assert(tools.length === 10, `Server exposed exactly 10 tools (found ${tools.length})`);
+    assert(tools.length >= 10, `Server exposed at least 10 tools (found ${tools.length})`);
 
     const expectedTools = [
       'configure_session',

@@ -1,7 +1,6 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import {
   getTableRow,
   getFirstText,
@@ -11,10 +10,6 @@ import {
 } from '../scripts/capture-client.mjs';
 import { RuntimeSession } from '../src/runtime-session.mjs';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const packRoot = path.resolve(__dirname, '..');
-
 console.log('======================================================');
 console.log(' MTM Capture Client & Unified Preemption Test Suite');
 console.log('======================================================\n');
@@ -22,7 +17,6 @@ console.log('======================================================\n');
 // --- Test Suite 1: Scoped Locator & Diagnostic Helpers ---
 console.log('--- Test Suite 1: Generic Scoped Locator Helpers ---');
 
-// Mock page object
 let clickCalled = false;
 let waitForCalled = false;
 const mockLocator = {
@@ -86,7 +80,7 @@ console.log('[PASS] selectTab locates and activates tab cleanly');
 // 4. dumpPageDiagnostics
 let errorLogged = false;
 const origError = console.error;
-console.error = (msg) => {
+console.error = () => {
   errorLogged = true;
 };
 await dumpPageDiagnostics(mockPage);
@@ -94,57 +88,41 @@ console.error = origError;
 assert(errorLogged, 'dumpPageDiagnostics printed diagnostics to stderr');
 console.log('[PASS] dumpPageDiagnostics successfully captures rendered page context');
 
-// --- Test Suite 2: Fail-Fast PI Lock in createCapturePage ---
-console.log('\n--- Test Suite 2: Fail-Fast PI Lock Circuit Breaker ---');
+// --- Test Suite 2: Non-Blocking Concurrent Capture (PI Non-Interference) ---
+console.log('\n--- Test Suite 2: Non-Blocking Concurrent Capture ---');
 const lockTestFile = path.resolve(process.cwd(), '.URGENT_PI_LOCK');
 fs.writeFileSync(lockTestFile, JSON.stringify({ activeIncident: 'PI-01' }), 'utf8');
 
 try {
-  let thrown = false;
+  // Proves createCapturePage does NOT abort with [CRITICAL HALT] when .URGENT_PI_LOCK exists
+  let haltedByLock = false;
   try {
-    await createCapturePage();
+    await createCapturePage({ headless: true });
   } catch (err) {
-    thrown = true;
-    assert(err.message.includes('CRITICAL HALT'), 'Error message contains CRITICAL HALT');
-    assert(err.message.includes('PRODUCT INCIDENT'), 'Error message warns about Product Incident');
+    if (err.message && err.message.includes('CRITICAL HALT')) {
+      haltedByLock = true;
+    }
   }
-  assert(thrown, 'createCapturePage threw fail-fast error when .URGENT_PI_LOCK exists');
-  console.log('[PASS] createCapturePage immediately aborts execution when PI lock is present');
+  assert(!haltedByLock, 'createCapturePage must never halt non-PI tasks with CRITICAL HALT');
+  console.log('[PASS] createCapturePage does not halt workers when concurrent PI is active');
 } finally {
   if (fs.existsSync(lockTestFile)) fs.unlinkSync(lockTestFile);
 }
 
-// --- Test Suite 3: 1-Turn Atomic Preemption in getNextTask ---
-console.log('\n--- Test Suite 3: 1-Turn Atomic Preemption in getNextTask ---');
+// --- Test Suite 3: Swarm PI Prioritization in getClusterSnapshot ---
+console.log('\n--- Test Suite 3: Swarm PI Prioritization in getClusterSnapshot ---');
 const testSession = new RuntimeSession();
-testSession.currentActiveItem = 'BUG-02';
 testSession.taskQueue = [
+  { key: 'BUG-02', title: 'Currency bug', points: 100, type: 'BUG' },
   { key: 'PI-01', title: 'Payment Reminder Bug', points: 160, isPI: true }
 ];
 
-// Mock git execution
-testSession.executeGit = (args) => {
-  if (args[0] === 'status') return { success: true, stdout: ' M src/index.ts\n' };
-  if (args[0] === 'stash' && args[1] === 'push') return { success: true, stdout: 'Saved working directory' };
-  if (args[0] === 'stash' && args[1] === 'pop') return { success: true, stdout: 'Dropped refs/stash@{0}' };
-  return { success: true, stdout: '' };
-};
-
-// Mock startWork to avoid external network calls
-testSession.startWork = async (key) => ({ success: true });
-testSession.autoLinkChallengeFixtures = () => {};
-
-// Call getNextTask
-const nextRes = await testSession.getNextTask();
-assert(nextRes.hasTask === true, 'getNextTask returned task');
-assert(nextRes.task.key === 'PI-01', 'getNextTask returned PI-01 as top priority');
-assert(testSession.currentActiveItem === 'PI-01', 'currentActiveItem switched to PI-01');
-assert(testSession.preemptionStack.length === 1, 'preemptionStack recorded suspended task');
-assert(testSession.preemptionStack[0].suspendedTaskKey === 'BUG-02', 'suspendedTaskKey is BUG-02');
-assert(testSession.preemptionStack[0].stashed === true, 'stashed flag is true');
-console.log('[PASS] getNextTask atomically stashes BUG-02 and activates PI-01 in 1 single turn');
+const snapshot = testSession.getClusterSnapshot();
+assert(snapshot.urgentPI !== null, 'urgentPI is detected in cluster snapshot');
+assert.strictEqual(snapshot.urgentPI.key, 'PI-01', 'PI-01 is flagged as the urgent PI');
+assert(snapshot.unassignedTasks.some(t => t.key === 'BUG-02'), 'BUG-02 remains available in unassignedTasks');
+console.log('[PASS] getClusterSnapshot flags PI-01 as urgentPI while preserving parallel task queue');
 
 console.log('\n======================================================');
 console.log(' All Unit & Integration Tests Passed (100% Success)');
 console.log('======================================================\n');
-

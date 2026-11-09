@@ -210,6 +210,92 @@ const TOOLS_DEFINITIONS = [
         }
       }
     }
+  },
+  {
+    name: 'search_logs',
+    description: 'Searches company microservice observability logs (deploy, status-cache, payment-api, reminder-worker, support-desk).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        service: {
+          type: 'string',
+          description: 'Target microservice name (e.g. deploy, reminder-worker, status-cache, payment-api, support-desk)'
+        },
+        query: {
+          type: 'string',
+          description: 'Optional query string or filter regex'
+        }
+      },
+      required: ['service']
+    }
+  },
+  {
+    name: 'sync_cluster',
+    description: 'Synchronizes cluster state for the root orchestrator dispatcher. Discovers unassigned tasks, monitors active workers, and alerts on urgent Product Incidents (PI). Supports long-polling.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        waitTimeoutMs: {
+          type: 'integer',
+          description: 'Long-polling timeout in milliseconds (default 15000, max 45000)',
+          default: 15000
+        }
+      }
+    }
+  },
+  {
+    name: 'prepare_task_workspace',
+    description: 'Creates isolated git worktrees for one or multiple task workers simultaneously. Links dependencies (node_modules, .yarn, .env), pre-materializes answers/<KEY>/evidence, and registers workers in the cluster. Accepts a single key or array of keys.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        backlogItemKey: {
+          type: 'string',
+          description: 'Single backlog item key (e.g. BUG-02)'
+        },
+        backlogItemKeys: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Array of backlog item keys to prepare concurrently (e.g. ["BUG-01", "BUG-02", "CR-01"])'
+        }
+      }
+    }
+  },
+  {
+    name: 'submit_task',
+    description: 'Centralized, mutex-locked submission gate for autonomous task workers or orchestrator. Auto-sanitizes submit.json against dynamic schema, commits worktree changes, merges into main, pushes to remote origin, posts to Game Master API, and cleans up the worktree.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        backlogItemKey: {
+          type: 'string',
+          description: 'Backlog item key (e.g. TASK-08, CR-07, BUG-09)'
+        },
+        branch: {
+          type: 'string',
+          description: 'Optional git branch name (default task/<KEY>)'
+        },
+        worktreePath: {
+          type: 'string',
+          description: 'Optional path to the task worktree directory'
+        },
+        status: {
+          type: 'string',
+          enum: ['DONE', 'PARTIAL', 'BLOCKED'],
+          description: 'Optional submission status (default: DONE)'
+        },
+        engineeringRecord: {
+          type: 'object',
+          description: 'Optional engineering record object'
+        },
+        artifactUrls: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Optional evidence URLs'
+        }
+      },
+      required: ['backlogItemKey']
+    }
   }
 ];
 
@@ -224,7 +310,15 @@ async function handleToolCall(name, args = {}) {
     case 'start_work':
       return await session.startWork(args.backlogItemKey);
     case 'submit_work':
-      return await session.submitWork(args.backlogItemKey, args);
+      return await session.submitTask(args);
+    case 'submit_task':
+      return await session.submitTask(args);
+    case 'prepare_task_workspace':
+      return await session.prepareTaskWorkspace(args.backlogItemKeys || args.backlogItemKey);
+    case 'sync_cluster':
+      return await session.syncCluster(args);
+    case 'search_logs':
+      return await session.searchLogs(args);
     case 'pack_submission':
       return session.packAndSanitizeSubmission(args.backlogItemKey, args.engineeringRecord, args.status);
     case 'report_progress':
