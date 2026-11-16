@@ -17,6 +17,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import http from 'node:http';
+import { fileURLToPath } from 'node:url';
+import { spawn, spawnSync } from 'node:child_process';
+import { ResourceBoard } from './resource-board.mjs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const PACK_ROOT = path.resolve(__dirname, '..');
+const TEAM_WORKSPACE = path.basename(PACK_ROOT) === 'team-sdlc-pack'
+  ? path.resolve(PACK_ROOT, '..')
+  : PACK_ROOT;
 
 /**
  * Detects the first available Chromium-compatible executable installed on the host.
@@ -42,6 +52,35 @@ export function getSystemBrowserPath() {
 /**
  * Dynamically resolves Playwright module from workspace or standard node_modules.
  */
+export function discoverWorkspacePlaywrightCandidates() {
+  const candidates = [];
+  const workspaceRoots = Array.from(new Set([
+    TEAM_WORKSPACE,
+    process.env.TEAM_SDLC_PACK_WORKSPACE ? path.resolve(process.env.TEAM_SDLC_PACK_WORKSPACE) : null,
+    path.resolve(PACK_ROOT, '..', 'CPL')
+  ].filter(Boolean)));
+
+  for (const wsRoot of workspaceRoots) {
+    const matchesDir = path.resolve(wsRoot, 'matches');
+    if (!fs.existsSync(matchesDir)) continue;
+    try {
+      for (const matchEntry of fs.readdirSync(matchesDir, { withFileTypes: true })) {
+        if (!matchEntry.isDirectory()) continue;
+        const matchBase = path.resolve(matchesDir, matchEntry.name);
+        candidates.push(path.resolve(matchBase, 'src', 'node_modules', 'playwright', 'index.mjs'));
+        candidates.push(path.resolve(matchBase, 'node_modules', 'playwright', 'index.mjs'));
+        try {
+          for (const subEntry of fs.readdirSync(matchBase, { withFileTypes: true })) {
+            if (!subEntry.isDirectory()) continue;
+            candidates.push(path.resolve(matchBase, subEntry.name, 'src', 'node_modules', 'playwright', 'index.mjs'));
+          }
+        } catch (_) {}
+      }
+    } catch (_) {}
+  }
+  return candidates;
+}
+
 export async function resolvePlaywright() {
   try {
     const playwright = await import('playwright');
@@ -51,8 +90,8 @@ export async function resolvePlaywright() {
       path.resolve(process.cwd(), 'node_modules', 'playwright', 'index.mjs'),
       path.resolve(process.cwd(), 'src', 'node_modules', 'playwright', 'index.mjs'),
       path.resolve(process.cwd(), '..', 'src', 'node_modules', 'playwright', 'index.mjs'),
-      'D:\\mtm\\CPL\\matches\\TISTL6MV\\TISTL6MV\\src\\node_modules\\playwright\\index.mjs',
-      'D:\\mtm\\CPL_3\\matches\\DZCJAFEG\\DZCJAFEG\\src\\node_modules\\playwright\\index.mjs'
+      path.resolve(process.cwd(), '..', 'node_modules', 'playwright', 'index.mjs'),
+      ...discoverWorkspacePlaywrightCandidates()
     ];
     for (const c of candidates) {
       if (fs.existsSync(c)) {
@@ -519,7 +558,148 @@ export async function executeRecipe(options) {
     });
   }
 
-  throw new Error(`Unsupported recipe name: ${name}. Supported recipes: BUG-01, BUG-02, CR-01`);
+  console.warn(`[Evidence Runner] Notice: No pre-configured recipe for "${name}". Using standard direct screenshot/check workflow.`);
+  return [];
+}
+
+export function killPortListener(port) {
+  const numericPort = Number(port);
+  if (!Number.isInteger(numericPort) || numericPort <= 0) return;
+
+  try {
+    if (process.platform === 'win32') {
+      const netstatRes = spawnSync('netstat', ['-ano', '-p', 'tcp'], { encoding: 'utf8' });
+      const stdout = netstatRes.stdout || '';
+      const pids = new Set();
+      const portRegex = new RegExp(`:${numericPort}\\s+\\S+\\s+LISTENING\\s+(\\d+)`, 'i');
+      for (const line of stdout.split(/\r?\n/)) {
+        const match = line.match(portRegex);
+        if (match) {
+          const pid = Number(match[1]);
+          if (Number.isInteger(pid) && pid > 0 && pid !== process.pid) {
+            pids.add(pid);
+          }
+        }
+      }
+      for (const pid of pids) {
+        spawnSync('taskkill', ['/F', '/T', '/PID', String(pid)], { stdio: 'ignore' });
+      }
+    } else {
+      spawnSync('sh', ['-c', `lsof -ti tcp:${numericPort} | xargs -r kill -9`], { stdio: 'ignore' });
+    }
+  } catch (_) {}
+}
+
+/**
+ * Executes UI evidence capture or custom command under an atomic ResourceBoard lock.
+ * Automatically claims "web-server" on the board, starts a background dev server,
+ * verifies readiness, runs the action or recipe, terminates the dev server,
+ * and releases the lock on the notification board.
+ */
+export async function runWithDevServer(options = {}) {
+  const {
+    task = 'UNKNOWN_TASK',
+    cwd = process.cwd(),
+    devCmd = null,
+    port = 3000,
+    baseUrl = `http://127.0.0.1:${port}`,
+    seedCmd = null,
+    recipe = null,
+    action = null,
+    timeoutMs = 90000
+  } = options;
+
+  const board = new ResourceBoard();
+  console.log(`[Evidence Runner] Requesting "web-server" lock on Resource Board for ${task}...`);
+  await board.acquire('web-server', {
+    task,
+    ttlMs: 90000,
+    waitTimeoutMs: timeoutMs,
+    message: `Running dev server and evidence capture for ${task}`
+  });
+
+  let serverProc = null;
+  try {
+    // 1. Optional DB seeding step (e.g. prisma seed or custom seed)
+    if (seedCmd) {
+      console.log(`[Evidence Runner] Running DB seed under lock: ${seedCmd}`);
+      spawnSync(seedCmd, { shell: true, stdio: 'inherit', cwd, env: process.env });
+    }
+
+    // 2. Clean any stale port listener and resolve dev command
+    killPortListener(port);
+
+    let command = devCmd;
+    let serverCwd = cwd;
+    if (!command) {
+      const pkgPath = path.resolve(cwd, 'package.json');
+      const srcPkgPath = path.resolve(cwd, 'src', 'package.json');
+      let targetPkg = pkgPath;
+      if (!fs.existsSync(pkgPath) && fs.existsSync(srcPkgPath)) {
+        targetPkg = srcPkgPath;
+        serverCwd = path.resolve(cwd, 'src');
+      }
+
+      if (fs.existsSync(targetPkg)) {
+        try {
+          const pkg = JSON.parse(fs.readFileSync(targetPkg, 'utf8'));
+          if (pkg.scripts?.dev) {
+            command = 'pnpm dev';
+          } else if (pkg.scripts?.start) {
+            command = 'pnpm start';
+          }
+        } catch (_) {}
+      }
+      if (!command) {
+        command = 'pnpm dev';
+      }
+    }
+
+    console.log(`[Evidence Runner] Launching background dev server: "${command}" in ${serverCwd}...`);
+    serverProc = spawn(command, {
+      shell: true,
+      cwd: serverCwd,
+      env: { ...process.env, PORT: String(port) },
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+
+    // 3. Wait for dev server to respond
+    console.log(`[Evidence Runner] Waiting for dev server at ${baseUrl}...`);
+    await ensureDevServerReady(baseUrl, 25000);
+    console.log(`[Evidence Runner] Dev server is LIVE.`);
+
+    // 4. Run the action (e.g. recipe or custom command)
+    if (recipe) {
+      console.log(`[Evidence Runner] Executing recipe "${recipe}"...`);
+      await executeRecipe({ name: recipe, matchRoot: cwd, baseUrl });
+    } else if (typeof action === 'function') {
+      await action();
+    } else if (typeof action === 'string') {
+      console.log(`[Evidence Runner] Executing action command: "${action}"...`);
+      spawnSync(action, { shell: true, stdio: 'inherit', cwd, env: process.env });
+    }
+
+    console.log(`[Evidence Runner] Evidence capture completed successfully.`);
+  } finally {
+    // 5. Clean up server process and ensure port listener is freed
+    if (serverProc && serverProc.pid) {
+      console.log(`[Evidence Runner] Terminating dev server (PID: ${serverProc.pid})...`);
+      try {
+        if (process.platform === 'win32') {
+          spawnSync(`taskkill /F /T /PID ${serverProc.pid}`, { shell: true, stdio: 'ignore' });
+        } else {
+          serverProc.kill('SIGTERM');
+        }
+      } catch (_) {}
+    }
+    killPortListener(port);
+
+    // 6. Release resource on the Resource Board
+    board.release('web-server', {
+      task,
+      message: `Released web-server after completing evidence capture for ${task}`
+    });
+  }
 }
 
 // CLI entrypoint
@@ -538,6 +718,7 @@ Usage:
   node evidence-runner.mjs screenshot --url <url> --output <path> [--tab <name>] [--waitFor <selector>] [--storage-state <path>]
   node evidence-runner.mjs batch-evidence (--file <steps.json> | --steps <json>) [--storage-state <path>]
   node evidence-runner.mjs recipe --name <BUG-02> [--match-root <path>] [--url <url>]
+  node evidence-runner.mjs run-with-server [--task <KEY>] [--recipe <KEY>] [--cmd <cmd>] [--seed <cmd>]
 `);
     process.exit(0);
   }
@@ -546,6 +727,27 @@ Usage:
     const idx = args.indexOf(flag);
     return idx !== -1 && args[idx + 1] ? args[idx + 1] : null;
   };
+
+  if (command === 'run-with-server') {
+    const task = getArg('--task') || 'UNKNOWN_TASK';
+    const recipe = getArg('--recipe') || getArg('--name');
+    const action = getArg('--action') || getArg('--cmd');
+    const seedCmd = getArg('--seed');
+    const devCmd = getArg('--dev-cmd');
+    const port = parseInt(getArg('--port') || '3000', 10);
+    const cwd = getArg('--cwd') || getArg('--match-root') || process.cwd();
+
+    await runWithDevServer({
+      task,
+      recipe,
+      action,
+      seedCmd,
+      devCmd,
+      port,
+      cwd
+    });
+    process.exit(0);
+  }
 
   if (command === 'check-browser') {
     const bPath = getSystemBrowserPath();

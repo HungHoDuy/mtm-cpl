@@ -12,16 +12,15 @@ Guide the root orchestrator (`team_orchestrator`) to autonomously coordinate a z
 
 ## 1. Backlog Wave Prioritization Matrix (Swarm Coordination & Multi-Worker Triage)
 
-Whenever new backlog items are discovered via `sync_cluster()`, the orchestrator triages and batches worktrees immediately:
+Whenever new backlog items are discovered via `sync_cluster()`, the orchestrator batches worktrees immediately:
 
-1. **Priority 1: `PI` (Product Incident)**
-   - Highest operational urgency. If an `urgentPI` appears, immediately prepare its workspace via `prepare_task_workspace({ backlogItemKey: urgentPI.key })` and spawn a dedicated worker before any other tasks.
-2. **Priority 2: Expiring Countdown Deadlines**
-   - Items with active closing timers (e.g. `BUG-02` with an active countdown clock) take next precedence.
-3. **Priority 3: Highest Score / Points Value**
-   - Higher point values: **300 pts > 250 pts > 200 pts > 150 pts > 100 pts**.
-4. **Batch Worktree Allocation**:
-   - For all unassigned tasks, execute batch workspace provisioning with `prepare_task_workspace({ backlogItemKeys: keys })`.
+1. **Batch Worktree Allocation (All Tasks & PIs)**:
+   - For all unassigned tasks (including PIs), execute batch workspace provisioning simultaneously:
+     `tools.mcp__mtm_helper__prepare_task_workspace({ backlogItemKeys: keys })`.
+   - Worktree preparation automatically starts work on Game Master API (`POST /backlogs/start`), initializes `submit.json`, pre-fetches QA test data, and auto-links challenge fixtures.
+2. **Priority Execution**:
+   - Subagents for PIs and high-priority deadline items are spawned immediately and run concurrently with zero wait time.
+   - Points triage: **300 pts > 250 pts > 200 pts > 150 pts > 100 pts**.
 
 ---
 
@@ -54,44 +53,63 @@ For each item: spawn_agent(team_task_worker)
 
 ### Stage Instructions for Orchestrator:
 
+#### 0. Session Configuration (`configure_session`)
+- At match startup (using the `START_GAME` / `START_GAME_V4` descriptor fields), call `configure_session`:
+  ```javascript
+  tools.mcp__mtm_helper__configure_session({
+    descriptor: {
+      playerSessionId,
+      matchId,
+      matchUuid,
+      teamId,
+      apiKeySecret,
+      teamApiKey,
+      gameMasterApiUrl,
+      checkoutRoot,
+      matchRoot,
+      progressLogFile,
+      teamSdlcPackWorkspace,
+      repository
+    }
+  });
+  ```
+
 #### 1. Cluster State Sync (`sync_cluster`)
 - Call `tools.mcp__mtm_helper__sync_cluster({ waitTimeoutMs: 15000 })`.
 - Returns active radar status, list of unassigned backlog items, active workers, submitted tasks, and urgent PIs.
 
 #### 2. Batch Worktree Preparation (`prepare_task_workspace`)
-- If an urgent `urgentPI` is detected:
-  - Immediately prepare its workspace: `tools.mcp__mtm_helper__prepare_task_workspace({ backlogItemKey: urgentPI.key })`.
-  - Spawn worker immediately before anything else:
-    `tools.spawn_agent({ agent_name: urgentPI.key, agent_type: "team_task_worker", prompt: "Resolve PI: " + urgentPI.key + " in worktree: " + res.worktreePath })`.
-- For all remaining unassigned tasks:
-  - **BATCH CALL**: Pass all keys simultaneously to avoid serial latency:
-    `tools.mcp__mtm_helper__prepare_task_workspace({ backlogItemKeys: keys })`.
-  - Returns an array of `{ backlogItemKey, worktreePath, branch, envPath, junctionCreated }`.
+- Pass all unassigned task keys simultaneously in a single batch call:
+  `tools.mcp__mtm_helper__prepare_task_workspace({ backlogItemKeys: unassignedTasks.map(t => t.key) })`.
+- Automatically executes Game Master API `START_BACKLOG`, sets tasks to `IN_PROGRESS`, materializes challenge specs (`challenge/<KEY>.md`, `<KEY>-submit.json`), pre-fetches QA fixtures, ensures `src/.env`, and persists orchestrator `.mtm/active-match.json` (never writing secrets into worktrees).
+- Returns an array of `{ backlogItemKey, worktreePath, branch, isPI }`.
 
 #### 3. Immediate Parallel Worker Spawning (`spawn_agent`)
-- Iterate over each prepared workspace and spawn workers in parallel:
+- Iterate over each prepared workspace and spawn workers in parallel using top-level `spawn_agent`:
   ```javascript
   for (const ws of workspaces) {
-    tools.spawn_agent({
-      agent_name: ws.backlogItemKey,
+    spawn_agent({
+      task_name: ws.backlogItemKey.toLowerCase().replace(/[^a-z0-9_]/g, '_'),
       agent_type: "team_task_worker",
-      prompt: `Execute task ${ws.backlogItemKey} in worktree ${ws.worktreePath}`
+      fork_turns: "none",
+      message: `Execute task ${ws.backlogItemKey} in worktree ${ws.worktreePath}`
     });
   }
   ```
 - **NO WORKER CAP**: Spawns are non-blocking. Never pause between spawns.
 
 #### 4. Handling Worker Completion & Submissions
-- Workers execute `submit-cli.mjs` directly in their worktree via native `exec`.
-- Alternatively, if a worker requests root submission assistance, call:
-  `tools.mcp__mtm_helper__submit_task({ backlogItemKey, branch, worktreePath })`.
-- The centralized submission gate executes atomically under a mutex:
+- Workers execute `submit-cli.mjs` directly in their worktrees via native `exec`:
+  `node D:/mtm/CPL/team-sdlc-pack/bin/submit-cli.mjs --backlog <KEY> --branch task/<KEY> --worktree <worktreePath>`
+- The submission CLI atomically gates the submission under a mutex:
   - Validates `submit.json` and MVS requirements.
-  - Selectively merges only non-pack changes from `src/` and `answers/<KEY>/` (never clobbering pack files).
+  - Resolves Match UUID from orchestrator `.mtm/active-match.json` or environment.
+  - Selectively merges only non-pack changes from `src/` and `answers/<KEY>/` (never clobbering pack files or `.env` secrets).
   - Pushes to remote Git origin.
   - Emits Game Master API submission payload with Match UUID.
   - Emits dual telemetry (`SUBMITTED`, `PASSED`).
   - Tears down the worktree and cleans Git state.
+- The root orchestrator never needs to call fallback submission MCP tools.
 
 ---
 
@@ -103,21 +121,29 @@ Each worker spawned by the orchestrator operates autonomously in its dedicated G
    - Work strictly within the assigned `worktreePath`.
    - Never modify root repository files directly.
 
-2. **Headless Execution Only (No Foreground Dev Servers)**:
-   - **STRICTLY FORBIDDEN**: Running `pnpm dev`, `next dev`, or starting persistent servers in worktrees.
-   - Run headless test runners (`node challenge/<KEY>-run-checks.mjs`, vitest, or jest).
+2. **Shared Resources & Resource Board Protocol**:
+   - Never leave unmanaged dev servers running in the foreground (hangs agent tool calls) or run multiple uncoordinated servers (port 3000 collisions & DB deadlocks).
+   - If a task requires dev server or DB access for MVS evidence, coordinate via the decentralized Resource Board:
+     * Fast Evidence Capture:
+       `node D:/mtm/CPL/team-sdlc-pack/scripts/evidence-runner.mjs run-with-server --task <KEY> --recipe <KEY>`
+     * Generic Mutex Execution:
+       `node D:/mtm/CPL/team-sdlc-pack/scripts/resource-board.mjs exec web-server --task <KEY> -- "<command>"`
+     * Manual Lock/Unlock:
+       `node D:/mtm/CPL/team-sdlc-pack/scripts/resource-board.mjs acquire web-server --task <KEY>`
+       ... work ...
+       `node D:/mtm/CPL/team-sdlc-pack/scripts/resource-board.mjs release web-server --task <KEY>`
 
 3. **Autonomous SDLC Flow**:
-   - **Step 1 (Read Spec)**: Read `challenge/<KEY>-*` specification, `challenge/<KEY>-minimum-verification-scenarios.md`, and `challenge/<KEY>-submit.schema.json`.
+   - **Step 1 (Read Spec)**: Read `challenge/<KEY>.md`, `challenge/<KEY>-*` specification, `challenge/<KEY>-minimum-verification-scenarios.md`, and `challenge/<KEY>-submit.schema.json`. Consult Company MCP tools (`kb_search`, `search_logs` with `service` omitted first, `get_test_data`) when domain or incident context is needed.
    - **Step 2 (Targeted Fix)**: Apply minimal code diffs under `src/`.
-   - **Step 3 (Verify & Capture Evidence)**: Run headless checks and generate all required screenshot/report files in `answers/<KEY>/evidence/`.
+   - **Step 3 (Verify & Capture Evidence)**: Run challenge test runners (`node challenge/<KEY>-run-checks.mjs` or vitest). If UI screenshots are required, run `evidence-runner.mjs run-with-server --task <KEY> --recipe <KEY>`.
    - **Step 4 (Submit via CLI)**:
      ```powershell
      node D:/mtm/CPL/team-sdlc-pack/bin/submit-cli.mjs --backlog <KEY> --branch task/<KEY> --worktree <worktreePath>
      ```
    - **Step 5 (Notify & Exit)**:
      ```javascript
-     tools.send_message({ target: "/root", message: JSON.stringify({ type: "TASK_COMPLETED", backlogItemKey: "<KEY>" }) });
+     send_message({ target: "/root", message: JSON.stringify({ type: "TASK_COMPLETED", backlogItemKey: "<KEY>" }) });
      ```
 
 ---

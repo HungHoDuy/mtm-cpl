@@ -59,9 +59,21 @@ function parseArgs() {
 
 async function run() {
   const options = parseArgs();
-  const session = new RuntimeSession();
+  const session = new RuntimeSession({ worktreePath: options.worktreePath });
+  if (options.worktreePath) {
+    session.loadActiveMatchConfig(options.worktreePath);
+  }
 
   try {
+    const matchUuid = session.getEffectiveMatchUuid();
+    if (!matchUuid || matchUuid === 'UNKNOWN_MATCH') {
+      console.error(JSON.stringify({
+        success: false,
+        error: `[submit-cli] Active matchUuid could not be resolved from worktree (${options.worktreePath || 'none'}), environment, or .mtm/active-match.json.`
+      }, null, 2));
+      process.exit(1);
+    }
+
     const result = await session.submitTask(options);
     console.log(JSON.stringify({
       success: true,

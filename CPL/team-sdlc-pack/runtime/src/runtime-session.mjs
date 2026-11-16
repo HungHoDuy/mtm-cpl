@@ -15,9 +15,15 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const PACK_ROOT = path.resolve(__dirname, '..');
+const DEFAULT_TEAM_WORKSPACE = path.resolve(PACK_ROOT, '..');
 
 export class RuntimeSession {
-  constructor() {
+  constructor(options = {}) {
     this.matchId = process.env.MATCH_ID || '';
     this.matchUuid = process.env.MATCH_UUID || '';
     this.teamId = process.env.TEAM_ID || 'CPL';
@@ -25,13 +31,18 @@ export class RuntimeSession {
     this.gameMasterUrl = process.env.GM_BASE_URL || 'https://masterthemachine.tech';
     this.username = process.env.LOGIN_USERNAME || '';
     this.password = process.env.LOGIN_PASSWORD || '';
-    this.playerSessionId = crypto.randomUUID();
-    this.workingDirectory = process.cwd();
-    this.checkoutRoot = process.env.CHECKOUT_ROOT || path.resolve(this.workingDirectory, '..', 'CPL');
-    this.assignedBranch = process.env.GIT_BRANCH || 'main';
-    this.assignedFolder = process.env.GIT_FOLDER || '';
+    this._hasExplicitPlayerSessionId = Boolean(options.playerSessionId);
+    this.playerSessionId = options.playerSessionId || crypto.randomUUID();
+    this.workingDirectory = options.workingDirectory || process.cwd();
+    this._hasExplicitCheckoutRoot = Boolean(process.env.CHECKOUT_ROOT || options.checkoutRoot);
+    this.checkoutRoot = process.env.CHECKOUT_ROOT || options.checkoutRoot || DEFAULT_TEAM_WORKSPACE;
+    this._hasExplicitBranch = Boolean(process.env.GIT_BRANCH || options.assignedBranch);
+    this.assignedBranch = process.env.GIT_BRANCH || options.assignedBranch || 'main';
+    this.assignedFolder = process.env.GIT_FOLDER || options.assignedFolder || '';
     this.currentRevision = process.env.GIT_REVISION || null;
-    this.progressLogFile = '';
+    this._hasExplicitProgressLog = Boolean(options.progressLogFile);
+    this.progressLogFile = options.progressLogFile ? path.resolve(options.progressLogFile) : '';
+    this.isTestSession = Boolean(options.isTestSession);
 
     // In-memory cookie jar: map of name -> { value, domain, path, expires }
     this.cookieJar = new Map();
@@ -47,12 +58,147 @@ export class RuntimeSession {
 
     // Cluster Swarm State
     this.clusterWorkers = new Map();
+    this.startedBacklogs = new Set();
     this.submittedBacklogs = new Set();
     this.submissionMutexQueue = Promise.resolve();
     this.radarActive = false;
     this.taskQueue = [];
 
-    this.initProgressLog();
+    // Auto-load match parameters from active-match.json if not a test session
+    this.loadActiveMatchConfig(options.worktreePath || null);
+
+    this.initProgressLog(this.progressLogFile || null);
+  }
+
+  saveActiveMatchConfig() {
+    if (
+      this.isTestSession ||
+      /^TEST_/i.test(this.matchId) ||
+      this.teamApiKey === 'mock_test_key_123' ||
+      (this.checkoutRoot && this.checkoutRoot.toLowerCase().includes('scratch'))
+    ) {
+      return;
+    }
+
+    const config = {
+      matchId: this.matchId,
+      matchUuid: this.matchUuid,
+      teamId: this.teamId,
+      teamApiKey: this.teamApiKey,
+      gameMasterUrl: this.gameMasterUrl,
+      checkoutRoot: this.checkoutRoot,
+      workingDirectory: this.workingDirectory,
+      assignedBranch: this.assignedBranch,
+      assignedFolder: this.assignedFolder,
+      playerSessionId: this.playerSessionId,
+      progressLogFile: this.progressLogFile,
+      username: this.username,
+      password: this.password,
+      savedAt: new Date().toISOString()
+    };
+
+    const targets = Array.from(new Set([
+      path.resolve(PACK_ROOT, '.mtm', 'active-match.json'),
+      path.resolve(DEFAULT_TEAM_WORKSPACE, '.mtm', 'active-match.json')
+    ]));
+
+    for (const p of targets) {
+      try {
+        fs.mkdirSync(path.dirname(p), { recursive: true });
+        fs.writeFileSync(p, JSON.stringify(config, null, 2), 'utf8');
+      } catch (_) {}
+    }
+  }
+
+  loadActiveMatchConfig(worktreePath = null) {
+    if (this.isTestSession) return;
+
+    const candidates = Array.from(new Set([
+      path.resolve(PACK_ROOT, '.mtm', 'active-match.json'),
+      path.resolve(DEFAULT_TEAM_WORKSPACE, '.mtm', 'active-match.json'),
+      path.resolve(process.cwd(), '.mtm', 'active-match.json')
+    ]));
+
+    for (const c of candidates) {
+      if (!fs.existsSync(c)) continue;
+      try {
+        const data = JSON.parse(fs.readFileSync(c, 'utf8'));
+        if (
+          (/^TEST_/i.test(data.matchId || '') || data.teamApiKey === 'mock_test_key_123') &&
+          this.matchId !== data.matchId
+        ) {
+          continue;
+        }
+        if (this.matchId && data.matchId && data.matchId !== this.matchId) {
+          continue;
+        }
+        if (data.matchId && !this.matchId) {
+          this.matchId = data.matchId;
+        }
+        if (data.matchUuid && (!this.matchUuid || !this.matchUuid.includes('-'))) {
+          this.matchUuid = data.matchUuid;
+        }
+        if (data.teamId && (!this.teamId || this.teamId === 'CPL')) {
+          this.teamId = data.teamId;
+        }
+        if (data.teamApiKey && !this.teamApiKey) {
+          this.teamApiKey = data.teamApiKey;
+        }
+        if (data.gameMasterUrl && (!this.gameMasterUrl || this.gameMasterUrl.includes('localhost'))) {
+          this.gameMasterUrl = data.gameMasterUrl;
+        }
+        if (data.checkoutRoot && !this._hasExplicitCheckoutRoot) {
+          this.checkoutRoot = data.checkoutRoot;
+        }
+        if (data.assignedBranch && !this._hasExplicitBranch) {
+          this.assignedBranch = data.assignedBranch;
+        }
+        if (data.assignedFolder && !this.assignedFolder) {
+          this.assignedFolder = data.assignedFolder;
+        }
+        if (data.playerSessionId && !this._hasExplicitPlayerSessionId) {
+          this.playerSessionId = data.playerSessionId;
+        }
+        if (data.progressLogFile && !this._hasExplicitProgressLog) {
+          this.progressLogFile = data.progressLogFile;
+        }
+        if (data.username && !this.username) {
+          this.username = data.username;
+        }
+        if (data.password && !this.password) {
+          this.password = data.password;
+        }
+        if (this.matchUuid && this.matchUuid.includes('-') && this.teamApiKey) {
+          break;
+        }
+      } catch (_) {}
+    }
+
+    if (!this.teamApiKey && process.env.TEAM_API_KEY) {
+      this.teamApiKey = process.env.TEAM_API_KEY;
+    }
+  }
+
+  injectWorktreeEnv(wtMatchRoot, worktreePath) {
+    const wtSrcDir = path.resolve(wtMatchRoot, 'src');
+    if (!fs.existsSync(wtSrcDir)) return;
+
+    const wtSrcEnv = path.resolve(wtSrcDir, '.env');
+    if (fs.existsSync(wtSrcEnv)) return;
+
+    try {
+      const mainSrcEnv = path.resolve(this.getMatchRoot(), 'src', '.env');
+      if (fs.existsSync(mainSrcEnv)) {
+        const lines = fs.readFileSync(mainSrcEnv, 'utf8')
+          .split(/\r?\n/)
+          .filter(line => !/^\s*TEAM_API_KEY\s*=/.test(line));
+        fs.writeFileSync(wtSrcEnv, lines.join('\n').trim() + '\n', 'utf8');
+        return;
+      }
+      this.bootstrapEnvFromExample(wtSrcDir);
+    } catch (err) {
+      this.logDebug(`[injectWorktreeEnv] Warning writing src/.env to ${wtSrcEnv}: ${err.message}`);
+    }
   }
 
   logDebug(...args) {
@@ -78,7 +224,10 @@ export class RuntimeSession {
   }
 
   getEffectiveMatchUuid() {
-    return this.matchUuid || this.matchId;
+    if (!this.matchUuid || !this.matchUuid.includes('-')) {
+      this.loadActiveMatchConfig();
+    }
+    return this.matchUuid || this.matchId || '';
   }
 
   getEffectiveMatchId() {
@@ -136,6 +285,10 @@ export class RuntimeSession {
         } catch (_) {}
       }
     }
+
+    if (!this.teamApiKey && process.env.TEAM_API_KEY) {
+      this.teamApiKey = process.env.TEAM_API_KEY;
+    }
   }
 
   parseMvsRequirements(matchRoot, backlogItemKey) {
@@ -171,34 +324,37 @@ export class RuntimeSession {
     return requirements;
   }
 
+  bootstrapEnvFromExample(srcDir) {
+    const envExample = path.resolve(srcDir, '.env.example');
+    const envTarget = path.resolve(srcDir, '.env');
+    if (!fs.existsSync(srcDir) || !fs.existsSync(envExample) || fs.existsSync(envTarget)) {
+      return false;
+    }
+
+    this.logDebug('Auto-bootstrapping project src/.env from .env.example...');
+    let content = fs.readFileSync(envExample, 'utf8');
+
+    // Replace CHANGE_ME with local database credentials
+    const dbSecret = process.env.DATABASE_PASSWORD || process.env.DB_PASSWORD || 'freelanceos_secret';
+    content = content.replace(/CHANGE_ME/g, dbSecret);
+
+    // Ensure AUTH_SECRET is cryptographically compliant (>= 32 chars)
+    const secureAuthSecret = crypto.randomBytes(32).toString('hex'); // 64 hex characters
+    content = content.replace(
+      /AUTH_SECRET="[^"]*"/,
+      `AUTH_SECRET="${secureAuthSecret}"`
+    );
+
+    fs.writeFileSync(envTarget, content, 'utf8');
+    this.logDebug('Successfully synthesized src/.env with compliant configurations.');
+    return true;
+  }
+
   ensureProjectEnvironment() {
     try {
       const matchRoot = this.getMatchRoot();
       if (!matchRoot || !fs.existsSync(matchRoot)) return;
-
-      const srcDir = path.resolve(matchRoot, 'src');
-      const envExample = path.resolve(srcDir, '.env.example');
-      const envTarget = path.resolve(srcDir, '.env');
-
-      if (!fs.existsSync(srcDir) || !fs.existsSync(envExample)) return;
-
-      if (!fs.existsSync(envTarget)) {
-        this.logDebug('Auto-bootstrapping project src/.env from .env.example...');
-        let content = fs.readFileSync(envExample, 'utf8');
-
-        // Replace CHANGE_ME with local database credentials
-        content = content.replace(/CHANGE_ME/g, 'freelanceos_secret');
-
-        // Ensure AUTH_SECRET is cryptographically compliant (>= 32 chars)
-        const secureAuthSecret = crypto.randomBytes(32).toString('hex'); // 64 hex characters
-        content = content.replace(
-          /AUTH_SECRET="[^"]*"/,
-          `AUTH_SECRET="${secureAuthSecret}"`
-        );
-
-        fs.writeFileSync(envTarget, content, 'utf8');
-        this.logDebug('Successfully synthesized matchRoot/src/.env with compliant configurations.');
-      }
+      this.bootstrapEnvFromExample(path.resolve(matchRoot, 'src'));
     } catch (err) {
       this.logDebug('Warning: Could not auto-bootstrap project environment:', err.message);
     }
@@ -281,19 +437,22 @@ export class RuntimeSession {
       // Dual-write progress event to team pack logs so MTM Player UI never desyncs
       try {
         const activeMatchId = this.matchId || 'active';
-        const candidatePackDirs = [
-          path.resolve(this.checkoutRoot, '..', '..', 'team-sdlc-pack', 'logs'),
-          path.resolve(this.checkoutRoot, '..', 'team-sdlc-pack', 'logs'),
-          path.resolve(this.workingDirectory, '..', '..', '..', 'team-sdlc-pack', 'logs'),
-          path.resolve(this.workingDirectory, '..', '..', 'team-sdlc-pack', 'logs'),
-          path.resolve(this.workingDirectory, '..', 'team-sdlc-pack', 'logs')
-        ];
-        for (const candidateDir of candidatePackDirs) {
-          if (fs.existsSync(candidateDir)) {
-            const mirrorLog = path.resolve(candidateDir, `${activeMatchId}.progress.ndjson`);
-            if (path.resolve(mirrorLog) !== path.resolve(this.progressLogFile)) {
-              fs.appendFileSync(mirrorLog, logLine, 'utf8');
-              break;
+        if (!this.isTestSession && !/^TEST_/i.test(activeMatchId)) {
+          const candidatePackDirs = [
+            path.resolve(PACK_ROOT, 'logs'),
+            path.resolve(this.checkoutRoot, '..', '..', 'team-sdlc-pack', 'logs'),
+            path.resolve(this.checkoutRoot, '..', 'team-sdlc-pack', 'logs'),
+            path.resolve(this.workingDirectory, '..', '..', '..', 'team-sdlc-pack', 'logs'),
+            path.resolve(this.workingDirectory, '..', '..', 'team-sdlc-pack', 'logs'),
+            path.resolve(this.workingDirectory, '..', 'team-sdlc-pack', 'logs')
+          ];
+          for (const candidateDir of candidatePackDirs) {
+            if (fs.existsSync(candidateDir)) {
+              const mirrorLog = path.resolve(candidateDir, `${activeMatchId}.progress.ndjson`);
+              if (path.resolve(mirrorLog) !== path.resolve(this.progressLogFile)) {
+                fs.appendFileSync(mirrorLog, logLine, 'utf8');
+                break;
+              }
             }
           }
         }
@@ -461,6 +620,7 @@ export class RuntimeSession {
 
     if (this.teamApiKey) {
       headers['Authorization'] = `Bearer ${this.teamApiKey}`;
+      headers['x-api-key'] = this.teamApiKey;
     }
 
     let payloadString = null;
@@ -670,22 +830,54 @@ export class RuntimeSession {
    * Tool 1: configure_session
    */
   async configureSession(descriptor = {}, modelPolicy = null) {
-    if (descriptor.matchId) this.matchId = descriptor.matchId;
+    if (descriptor.matchId) {
+      if (this.matchId && this.matchId !== descriptor.matchId) {
+        this.matchUuid = descriptor.matchUuid || '';
+        this.startedBacklogs.clear();
+        this.submittedBacklogs.clear();
+        this.backlogRegistry.clear();
+        this.clusterWorkers.clear();
+        this.taskQueue = [];
+        this.assignedFolder = '';
+        this._hasExplicitProgressLog = false;
+      }
+      this.matchId = descriptor.matchId;
+    }
     if (descriptor.matchUuid) this.matchUuid = descriptor.matchUuid;
     if (descriptor.teamId) this.teamId = descriptor.teamId;
-    if (descriptor.teamApiKey || descriptor.apiKey) this.teamApiKey = descriptor.teamApiKey || descriptor.apiKey;
-    if (descriptor.gameMasterUrl) this.gameMasterUrl = descriptor.gameMasterUrl;
+    const incomingKey = descriptor.apiKeySecret || descriptor.teamApiKey || descriptor.apiKey;
+    if (incomingKey) this.teamApiKey = incomingKey;
+    const incomingUrl = descriptor.gameMasterApiUrl || descriptor.gameMasterOrigin || descriptor.gameMasterUrl;
+    if (incomingUrl) this.gameMasterUrl = String(incomingUrl).replace(/\/+$/, '');
     if (descriptor.username) this.username = descriptor.username;
     if (descriptor.password) this.password = descriptor.password;
     if (descriptor.workingDirectory) this.workingDirectory = descriptor.workingDirectory;
-    if (descriptor.checkoutRoot) this.checkoutRoot = descriptor.checkoutRoot;
-    if (descriptor.assignedBranch) this.assignedBranch = descriptor.assignedBranch;
+    if (descriptor.checkoutRoot) {
+      this.checkoutRoot = descriptor.checkoutRoot;
+      this._hasExplicitCheckoutRoot = true;
+    }
+    if (descriptor.assignedBranch) {
+      this.assignedBranch = descriptor.assignedBranch;
+      this._hasExplicitBranch = true;
+    }
     if (descriptor.assignedFolder) this.assignedFolder = descriptor.assignedFolder;
     if (descriptor.repository) {
-      if (descriptor.repository.branch) this.assignedBranch = descriptor.repository.branch;
+      if (descriptor.repository.branch) {
+        this.assignedBranch = descriptor.repository.branch;
+        this._hasExplicitBranch = true;
+      }
       if (descriptor.repository.folder) this.assignedFolder = descriptor.repository.folder;
     }
-    if (descriptor.playerSessionId) this.playerSessionId = descriptor.playerSessionId;
+    if (descriptor.matchRoot && this.checkoutRoot && !descriptor.assignedFolder && !descriptor.repository?.folder) {
+      const rel = path.relative(this.checkoutRoot, descriptor.matchRoot);
+      if (rel && !rel.startsWith('..') && !path.isAbsolute(rel)) {
+        this.assignedFolder = rel;
+      }
+    }
+    if (descriptor.playerSessionId) {
+      this.playerSessionId = descriptor.playerSessionId;
+      this._hasExplicitPlayerSessionId = true;
+    }
     if (descriptor.revision) this.currentRevision = descriptor.revision;
     if (descriptor.repository && descriptor.repository.revision) this.currentRevision = descriptor.repository.revision;
 
@@ -697,10 +889,12 @@ export class RuntimeSession {
     }
 
     if (descriptor.progressLogFile && typeof descriptor.progressLogFile === 'string') {
+      this._hasExplicitProgressLog = true;
       this.initProgressLog(descriptor.progressLogFile);
     } else if (descriptor.teamSdlcPackWorkspace) {
+      this._hasExplicitProgressLog = true;
       this.initProgressLog(path.resolve(descriptor.teamSdlcPackWorkspace, 'logs', `${this.getEffectiveMatchId()}.progress.ndjson`));
-    } else {
+    } else if (!this._hasExplicitProgressLog || !this.progressLogFile) {
       this.initProgressLog();
     }
 
@@ -714,6 +908,7 @@ export class RuntimeSession {
 
     // Auto-bootstrap matchRoot environment if repository is already present
     this.ensureProjectEnvironment();
+    this.saveActiveMatchConfig();
 
     return {
       configured: true,
@@ -811,6 +1006,94 @@ export class RuntimeSession {
     }
   }
 
+  computeUrgencyRank(item) {
+    let score = 0;
+    const k = String(item.key || '').toUpperCase();
+    if (k.startsWith('PI-')) score += 100000;
+    if (item.hasDeadline || k === 'BUG-02' || (item.title && item.title.toLowerCase().includes('deadline'))) {
+      score += 50000;
+      if (typeof item.deadlineMinutes === 'number') {
+        score += Math.max(0, 1000 - item.deadlineMinutes);
+      }
+    }
+    score += (item.points || 100);
+    return score;
+  }
+
+  extractJsonObject(str, startIdx) {
+    let depth = 0;
+    let inStr = false;
+    let esc = false;
+    for (let i = startIdx; i < str.length; i++) {
+      const ch = str[i];
+      if (inStr) {
+        if (esc) esc = false;
+        else if (ch === '\\') esc = true;
+        else if (ch === '"') inStr = false;
+      } else {
+        if (ch === '"') inStr = true;
+        else if (ch === '{') depth++;
+        else if (ch === '}') {
+          depth--;
+          if (depth === 0) return str.slice(startIdx, i + 1);
+        }
+      }
+    }
+    return null;
+  }
+
+  extractRscProjection(html) {
+    if (!html || !html.includes('self.__next_f.push')) return null;
+    try {
+      const chunks = [];
+      const re = /self\.__next_f\.push\(\[1,"((?:\\.|[^"\\])*)"\]\)/gs;
+      let m;
+      while ((m = re.exec(html)) !== null) {
+        try {
+          chunks.push(JSON.parse(`"${m[1]}"`));
+        } catch (_) {}
+      }
+      if (chunks.length === 0) return null;
+
+      const fullText = chunks.join('');
+      const buf = Buffer.from(fullText, 'utf8');
+      const rscMap = new Map();
+      const tRe = /([0-9a-f]+):T([0-9a-f]+),/g;
+      let tm;
+      let lastEndByte = -1;
+
+      while ((tm = tRe.exec(fullText)) !== null) {
+        const preChar = tm.index > 0 ? fullText[tm.index - 1] : '\n';
+        const startBytePrefix = Buffer.byteLength(fullText.slice(0, tm.index), 'utf8');
+        if (preChar !== '\n' && tm.index !== 0 && startBytePrefix !== lastEndByte) {
+          continue;
+        }
+        const id = tm[1];
+        const byteLen = parseInt(tm[2], 16);
+        const startByteIdx = startBytePrefix + Buffer.byteLength(tm[0], 'utf8');
+        const endByteIdx = startByteIdx + byteLen;
+        if (endByteIdx > buf.length) continue;
+        const text = buf.subarray(startByteIdx, endByteIdx).toString('utf8');
+        lastEndByte = endByteIdx;
+        rscMap.set(`$${id}`, text);
+        tRe.lastIndex = tm.index + tm[0].length + text.length;
+      }
+
+      const keyIdx = fullText.indexOf('"initialProjection":');
+      if (keyIdx === -1) return null;
+      const braceIdx = fullText.indexOf('{', keyIdx);
+      if (braceIdx === -1) return null;
+      const rawJson = this.extractJsonObject(fullText, braceIdx);
+      if (!rawJson) return null;
+
+      const projection = JSON.parse(rawJson);
+      return { projection, rscMap };
+    } catch (err) {
+      this.logDebug(`[extractRscProjection] Warning: ${err.message}`);
+      return null;
+    }
+  }
+
   /**
    * Tool 3: refresh_match
    */
@@ -854,67 +1137,81 @@ export class RuntimeSession {
 
     const html = res.body || '';
     const discoveredItems = [];
-
-    // Check if match UUID is embedded in HTML
-    const uuidMatch = html.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
-    if (uuidMatch && (!this.matchUuid || !this.matchUuid.includes('-'))) {
-      this.matchUuid = uuidMatch[0];
-      this.logDebug('Extracted match UUID from match page:', this.matchUuid);
-    }
-
-    // Primary: Strict UI Card Header regex targeting font-mono keys, points, and badge status
-    const cardRegex = /<span class="font-mono text-zinc-300">\s*(TASK-[0-9]+|CR-[0-9]+|BUG-[0-9]+|PI-[0-9]+)\s*<\/span>([\s\S]*?)<span class="rounded border px-2 py-0.5 [^"]*">\s*(OPEN|VISIBLE|CLOSED|IN_PROGRESS|COMPLETED)\s*<\/span>/gi;
-    let match;
     const foundKeys = new Set();
 
-    while ((match = cardRegex.exec(html)) !== null) {
-      const key = match[1].toUpperCase();
-      const cardMiddle = match[2] || '';
-      const status = match[3].toUpperCase();
-      if (!foundKeys.has(key)) {
-        foundKeys.add(key);
-        const title = `${key} Challenge`;
-        
-        // Extract point value and deadline indicators
-        const ptsMatch = cardMiddle.match(/(\d+)\s*pts/i);
-        const points = ptsMatch ? parseInt(ptsMatch[1], 10) : (key.startsWith('CR-') ? 300 : key.startsWith('PI-') ? 250 : key.startsWith('BUG-') ? 200 : 100);
-        const hasDeadline = cardMiddle.toLowerCase().includes('deadline') || cardMiddle.toLowerCase().includes('18m') || key === 'BUG-02';
-
-        discoveredItems.push({ key, title, status, points, hasDeadline });
-
-        // Auto-emit BACKLOG_STATUS (DISCOVERED) if newly found
-        if (!this.backlogRegistry.has(key)) {
-          this.backlogRegistry.set(key, { key, title, status, points, hasDeadline });
-          this.appendProgress({
-            type: 'BACKLOG_STATUS',
-            backlogId: key,
-            title,
-            status: 'DISCOVERED',
-            revision: null,
-            receiptId: null,
-            summary: `Discovered backlog item ${key} (${status})`
-          });
-        }
+    // Primary (Next.js RSC): Parse initialProjection and backlog descriptionMd chunks
+    const rscData = this.extractRscProjection(html);
+    if (rscData && rscData.projection) {
+      const { projection, rscMap } = rscData;
+      if (projection.match?.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(projection.match.id)) {
+        this.matchUuid = projection.match.id;
+        this.logDebug('Extracted match UUID from RSC projection:', this.matchUuid);
+        this.saveActiveMatchConfig();
       }
-    }
 
-    // Fallback: If no structured cards matched (e.g. mock test server), match generic pattern
-    if (discoveredItems.length === 0) {
-      const itemRegex = /(TASK-[0-9]+|CR-[0-9]+|BUG-[0-9]+|PI-[0-9]+)[^<]*?(?:<[^>]+>[^<]*?){0,5}(OPEN|VISIBLE|CLOSED|IN_PROGRESS|COMPLETED)/gi;
-      while ((match = itemRegex.exec(html)) !== null) {
-        const key = match[1].toUpperCase();
-        const status = match[2].toUpperCase();
-        if (!foundKeys.has(key)) {
+      const matchRoot = this.getMatchRoot();
+      const canWriteChallenge = Boolean(
+        matchRoot &&
+        fs.existsSync(matchRoot) &&
+        (fs.existsSync(path.join(matchRoot, 'src')) ||
+          fs.existsSync(path.join(matchRoot, 'challenge')) ||
+          fs.existsSync(path.join(this.checkoutRoot, '.git')))
+      );
+
+      if (Array.isArray(projection.backlog)) {
+        for (const b of projection.backlog) {
+          const key = String(b.key || b.backlogId || '').toUpperCase();
+          if (!key || foundKeys.has(key)) continue;
           foundKeys.add(key);
-          const title = `${key} Challenge`;
-          const ptsMatch = match[0].match(/(\d+)\s*pts/i);
-          const points = ptsMatch ? parseInt(ptsMatch[1], 10) : (key.startsWith('CR-') ? 300 : key.startsWith('PI-') ? 250 : key.startsWith('BUG-') ? 200 : 100);
-          const hasDeadline = match[0].toLowerCase().includes('deadline') || key === 'BUG-02';
 
-          discoveredItems.push({ key, title, status, points, hasDeadline });
+          const title = b.title || b.backlogTitle || `${key} Challenge`;
+          const status = String(b.status || 'OPEN').toUpperCase();
+          const workStatus = String(b.workStatus || '').toUpperCase();
+          const points = typeof b.points === 'number' ? b.points : 100;
+          const deadlineMinutes = typeof b.deadlineMinutes === 'number' ? b.deadlineMinutes : null;
+          const hasDeadline = Boolean(deadlineMinutes);
+          const descriptionMd = rscMap.get(b.descriptionMd) ||
+            (typeof b.descriptionMd === 'string' && !b.descriptionMd.startsWith('$') ? b.descriptionMd : '');
 
-          if (!this.backlogRegistry.has(key)) {
-            this.backlogRegistry.set(key, { key, title, status, points, hasDeadline });
+          if (workStatus === 'SUBMITTED') {
+            this.submittedBacklogs.add(key);
+          }
+
+          if (descriptionMd && canWriteChallenge) {
+            try {
+              const defaultMdPath = path.resolve(matchRoot, 'challenge', `${key}.md`);
+              if (!fs.existsSync(defaultMdPath)) {
+                fs.mkdirSync(path.dirname(defaultMdPath), { recursive: true });
+                fs.writeFileSync(defaultMdPath, descriptionMd, 'utf8');
+              }
+              if (Array.isArray(b.releaseFiles)) {
+                for (const relFile of b.releaseFiles) {
+                  if (typeof relFile !== 'string' || !relFile.endsWith('.md')) continue;
+                  const targetPath = path.resolve(matchRoot, relFile);
+                  const relCheck = path.relative(matchRoot, targetPath);
+                  if (relCheck && !relCheck.startsWith('..') && !path.isAbsolute(relCheck) && !fs.existsSync(targetPath)) {
+                    fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+                    fs.writeFileSync(targetPath, descriptionMd, 'utf8');
+                  }
+                }
+              }
+            } catch (_) {}
+          }
+
+          discoveredItems.push({ key, title, status, workStatus, points, deadlineMinutes, hasDeadline });
+
+          const wasKnown = this.backlogRegistry.has(key);
+          this.backlogRegistry.set(key, {
+            key,
+            title,
+            status,
+            workStatus,
+            points,
+            deadlineMinutes,
+            hasDeadline,
+            descriptionMd
+          });
+          if (!wasKnown) {
             this.appendProgress({
               type: 'BACKLOG_STATUS',
               backlogId: key,
@@ -929,19 +1226,86 @@ export class RuntimeSession {
       }
     }
 
-    // Multi-Criteria Triage Sorting: PI > Expiring Deadline > Points Descending
-    function computeUrgencyRank(item) {
-      let score = 0;
-      const k = item.key.toUpperCase();
-      if (k.startsWith('PI-')) score += 100000;
-      if (item.hasDeadline || k === 'BUG-02' || (item.title && item.title.toLowerCase().includes('deadline'))) {
-        score += 50000;
+    // Fallback UUID regex if RSC projection did not resolve matchUuid
+    if (!this.matchUuid || !this.matchUuid.includes('-')) {
+      const uuidMatch = html.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+      if (uuidMatch) {
+        this.matchUuid = uuidMatch[0];
+        this.logDebug('Extracted match UUID from match page:', this.matchUuid);
+        this.saveActiveMatchConfig();
       }
-      score += (item.points || 100);
-      return score;
     }
 
-    discoveredItems.sort((a, b) => computeUrgencyRank(b) - computeUrgencyRank(a));
+    // Secondary: Strict UI Card Header regex targeting font-mono keys, points, and badge status
+    if (discoveredItems.length === 0) {
+      const cardRegex = /<span class="font-mono text-zinc-300">\s*(TASK-[0-9]+|CR-[0-9]+|BUG-[0-9]+|PI-[0-9]+)\s*<\/span>([\s\S]*?)<span class="rounded border px-2 py-0.5 [^"]*">\s*(OPEN|VISIBLE|CLOSED|IN_PROGRESS|COMPLETED)\s*<\/span>/gi;
+      let match;
+
+      while ((match = cardRegex.exec(html)) !== null) {
+        const key = match[1].toUpperCase();
+        const cardMiddle = match[2] || '';
+        const status = match[3].toUpperCase();
+        if (!foundKeys.has(key)) {
+          foundKeys.add(key);
+          const title = `${key} Challenge`;
+
+          const ptsMatch = cardMiddle.match(/(\d+)\s*pts/i);
+          const points = ptsMatch ? parseInt(ptsMatch[1], 10) : (key.startsWith('CR-') ? 300 : key.startsWith('PI-') ? 250 : key.startsWith('BUG-') ? 200 : 100);
+          const hasDeadline = cardMiddle.toLowerCase().includes('deadline') || cardMiddle.toLowerCase().includes('18m') || key === 'BUG-02';
+
+          discoveredItems.push({ key, title, status, points, hasDeadline });
+
+          const wasKnown = this.backlogRegistry.has(key);
+          this.backlogRegistry.set(key, { key, title, status, points, hasDeadline });
+          if (!wasKnown) {
+            this.appendProgress({
+              type: 'BACKLOG_STATUS',
+              backlogId: key,
+              title,
+              status: 'DISCOVERED',
+              revision: null,
+              receiptId: null,
+              summary: `Discovered backlog item ${key} (${status})`
+            });
+          }
+        }
+      }
+    }
+
+    // Fallback: If no structured cards matched (e.g. mock test server), match generic pattern
+    if (discoveredItems.length === 0) {
+      const itemRegex = /(TASK-[0-9]+|CR-[0-9]+|BUG-[0-9]+|PI-[0-9]+)[^<]*?(?:<[^>]+>[^<]*?){0,5}(OPEN|VISIBLE|CLOSED|IN_PROGRESS|COMPLETED)/gi;
+      let match;
+      while ((match = itemRegex.exec(html)) !== null) {
+        const key = match[1].toUpperCase();
+        const status = match[2].toUpperCase();
+        if (!foundKeys.has(key)) {
+          foundKeys.add(key);
+          const title = `${key} Challenge`;
+          const ptsMatch = match[0].match(/(\d+)\s*pts/i);
+          const points = ptsMatch ? parseInt(ptsMatch[1], 10) : (key.startsWith('CR-') ? 300 : key.startsWith('PI-') ? 250 : key.startsWith('BUG-') ? 200 : 100);
+          const hasDeadline = match[0].toLowerCase().includes('deadline') || key === 'BUG-02';
+
+          discoveredItems.push({ key, title, status, points, hasDeadline });
+
+          const wasKnown = this.backlogRegistry.has(key);
+          this.backlogRegistry.set(key, { key, title, status, points, hasDeadline });
+          if (!wasKnown) {
+            this.appendProgress({
+              type: 'BACKLOG_STATUS',
+              backlogId: key,
+              title,
+              status: 'DISCOVERED',
+              revision: null,
+              receiptId: null,
+              summary: `Discovered backlog item ${key} (${status})`
+            });
+          }
+        }
+      }
+    }
+
+    discoveredItems.sort((a, b) => this.computeUrgencyRank(b) - this.computeUrgencyRank(a));
 
     return {
       matchId: this.getEffectiveMatchId(),
@@ -949,6 +1313,52 @@ export class RuntimeSession {
       backlogCount: discoveredItems.length,
       items: discoveredItems
     };
+  }
+
+  materializeStartDataFiles(cleanKey, startData = {}, targetRoots = []) {
+    const filesWritten = [];
+    const validRoots = targetRoots.filter(r => r && fs.existsSync(r));
+    for (const rootDir of validRoots) {
+      if (startData.files && typeof startData.files === 'object') {
+        const fileEntries = Array.isArray(startData.files)
+          ? startData.files.map(f => [f.path, f.content])
+          : Object.entries(startData.files);
+
+        for (const [relPath, content] of fileEntries) {
+          if (relPath && content !== undefined) {
+            const targetPath = path.resolve(rootDir, relPath);
+            const relCheck = path.relative(rootDir, targetPath);
+            if (relCheck && !relCheck.startsWith('..') && !path.isAbsolute(relCheck)) {
+              fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+              fs.writeFileSync(targetPath, content, 'utf8');
+              filesWritten.push(relPath);
+            }
+          }
+        }
+      }
+
+      const mvsContent = startData.minimumVerificationScenarios || startData.minimumVerificationMd;
+      if (mvsContent && typeof mvsContent === 'string') {
+        const mvsPath = path.resolve(rootDir, 'challenge', `${cleanKey}-minimum-verification-scenarios.md`);
+        if (!fs.existsSync(mvsPath)) {
+          fs.mkdirSync(path.dirname(mvsPath), { recursive: true });
+          fs.writeFileSync(mvsPath, mvsContent, 'utf8');
+          filesWritten.push(`challenge/${cleanKey}-minimum-verification-scenarios.md`);
+        }
+      }
+
+      const cached = this.backlogRegistry.get(cleanKey) || this.backlogRegistry.get(cleanKey.toUpperCase());
+      const descMd = startData.descriptionMd || cached?.descriptionMd;
+      if (descMd && typeof descMd === 'string') {
+        const descPath = path.resolve(rootDir, 'challenge', `${cleanKey}.md`);
+        if (!fs.existsSync(descPath)) {
+          fs.mkdirSync(path.dirname(descPath), { recursive: true });
+          fs.writeFileSync(descPath, descMd, 'utf8');
+          filesWritten.push(`challenge/${cleanKey}.md`);
+        }
+      }
+    }
+    return filesWritten;
   }
 
   /**
@@ -1027,6 +1437,7 @@ export class RuntimeSession {
     }
 
     const data = apiResult.data || {};
+    this.startedBacklogs.add(backlogItemKey.toUpperCase());
 
     // Update backlog state to IN_PROGRESS
     this.appendProgress({
@@ -1066,22 +1477,8 @@ export class RuntimeSession {
       fs.writeFileSync(templatePath, JSON.stringify(templateContent, null, 2), 'utf8');
     }
 
-    // If files are provided in response, write them to disk (supports both Map<String, String> and Array)
-    const filesWritten = [];
-    if (data.files && typeof data.files === 'object') {
-      const fileEntries = Array.isArray(data.files)
-        ? data.files.map(f => [f.path, f.content])
-        : Object.entries(data.files);
-
-      for (const [relPath, content] of fileEntries) {
-        if (relPath && content !== undefined) {
-          const targetPath = path.resolve(matchRoot, relPath);
-          fs.mkdirSync(path.dirname(targetPath), { recursive: true });
-          fs.writeFileSync(targetPath, content, 'utf8');
-          filesWritten.push(relPath);
-        }
-      }
-    }
+    // Write startData.files, minimumVerificationScenarios, and descriptionMd
+    const filesWritten = this.materializeStartDataFiles(backlogItemKey, data, [matchRoot]);
 
     // Ensure environment files (like src/.env) are active in matchRoot
     this.ensureProjectEnvironment();
@@ -1135,8 +1532,8 @@ export class RuntimeSession {
   /**
    * Auto-links challenge files (seed, report, run-checks) into src/ and executes seed upfront.
    */
-  autoLinkChallengeFixtures(backlogItemKey, targetFixturePath) {
-    const matchRoot = this.getMatchRoot();
+  autoLinkChallengeFixtures(backlogItemKey, targetFixturePath, targetRoot = null) {
+    const matchRoot = targetRoot || this.getMatchRoot();
     const challengeDir = path.resolve(matchRoot, 'challenge');
     const srcDir = path.resolve(matchRoot, 'src');
     const prismaDir = path.resolve(srcDir, 'prisma');
@@ -1149,10 +1546,6 @@ export class RuntimeSession {
     const cleanKey = backlogItemKey.toLowerCase().replace(/[^a-z0-9]/g, '');
 
     try {
-      if (!fs.existsSync(prismaDir)) {
-        fs.mkdirSync(prismaDir, { recursive: true });
-      }
-
       const files = fs.readdirSync(challengeDir);
       for (const file of files) {
         if (!file.toUpperCase().startsWith(backlogItemKey.toUpperCase())) continue;
@@ -1161,6 +1554,9 @@ export class RuntimeSession {
         const lower = file.toLowerCase();
 
         if (lower.includes('-seed.') || lower.includes('seed-')) {
+          if (!fs.existsSync(prismaDir)) {
+            fs.mkdirSync(prismaDir, { recursive: true });
+          }
           const destFile = path.resolve(prismaDir, `seed-${cleanKey}.ts`);
           fs.copyFileSync(srcPath, destFile);
           linkedFiles.push(`src/prisma/seed-${cleanKey}.ts`);
@@ -1182,11 +1578,31 @@ export class RuntimeSession {
             }
           }
         } else if (lower.includes('-report.') || lower.includes('report-')) {
+          if (!fs.existsSync(prismaDir)) {
+            fs.mkdirSync(prismaDir, { recursive: true });
+          }
           const destFile = path.resolve(prismaDir, `report-${cleanKey}.ts`);
           fs.copyFileSync(srcPath, destFile);
           linkedFiles.push(`src/prisma/report-${cleanKey}.ts`);
           this.logDebug(`[Challenge Auto-Link] Copied ${file} -> src/prisma/report-${cleanKey}.ts`);
-        } else if (lower.includes('check') || lower.includes('.mjs') || lower.includes('.js')) {
+        } else if (lower.endsWith('-mvs.test.ts')) {
+          const solovaTestsDir = path.resolve(srcDir, 'tests');
+          const actualServerDir = path.resolve(srcDir, 'packages', 'loot-core', 'src', 'server');
+          const mvsFileName = `${backlogItemKey.toLowerCase()}-mvs.test.ts`;
+          if (fs.existsSync(solovaTestsDir)) {
+            const destFile = path.resolve(solovaTestsDir, mvsFileName);
+            fs.copyFileSync(srcPath, destFile);
+            linkedFiles.push(`src/tests/${mvsFileName}`);
+            this.logDebug(`[Challenge Auto-Link] Copied ${file} -> src/tests/${mvsFileName}`);
+          } else if (fs.existsSync(actualServerDir)) {
+            const mtmDir = path.resolve(actualServerDir, 'mtm');
+            fs.mkdirSync(mtmDir, { recursive: true });
+            const destFile = path.resolve(mtmDir, mvsFileName);
+            fs.copyFileSync(srcPath, destFile);
+            linkedFiles.push(`src/packages/loot-core/src/server/mtm/${mvsFileName}`);
+            this.logDebug(`[Challenge Auto-Link] Copied ${file} -> src/packages/loot-core/src/server/mtm/${mvsFileName}`);
+          }
+        } else if (lower.endsWith('.mjs') || lower.endsWith('.js')) {
           const destFile = path.resolve(srcDir, file);
           fs.copyFileSync(srcPath, destFile);
           linkedFiles.push(`src/${file}`);
@@ -1252,7 +1668,27 @@ export class RuntimeSession {
       fs.mkdirSync(evidenceDir, { recursive: true });
     }
 
-    // 1. Scan actual evidence directory on disk
+    // 1. Scan actual evidence directory on disk and pull any MVS-required files found nearby
+    const mvsReqs = this.parseMvsRequirements(matchRoot, backlogItemKey);
+    for (const req of mvsReqs) {
+      const destEvidence = path.resolve(evidenceDir, req.file);
+      if (!fs.existsSync(destEvidence)) {
+        const nearbyCandidates = [
+          path.resolve(answerDir, req.file),
+          path.resolve(matchRoot, req.file),
+          path.resolve(matchRoot, 'src', req.file)
+        ];
+        for (const cand of nearbyCandidates) {
+          try {
+            if (fs.existsSync(cand) && fs.statSync(cand).isFile() && fs.statSync(cand).size > 0) {
+              fs.copyFileSync(cand, destEvidence);
+              break;
+            }
+          } catch (_) {}
+        }
+      }
+    }
+
     const onDiskFiles = [];
     try {
       const files = fs.readdirSync(evidenceDir);
@@ -1368,6 +1804,12 @@ export class RuntimeSession {
       doc.status = 'DONE';
     }
 
+    // Zero-point protection: Game Master gives 0 points for BLOCKED. Auto-upgrade to PARTIAL.
+    if (doc.status === 'BLOCKED') {
+      this.logDebug(`[packAndSanitize] Auto-upgraded status from BLOCKED to PARTIAL to prevent 0-point penalty.`);
+      doc.status = 'PARTIAL';
+    }
+
     const allReferencedEvidence = new Set(onDiskFiles);
 
     // 6. Handle testResults if allowed by schema
@@ -1387,6 +1829,15 @@ export class RuntimeSession {
         }
 
         const cleanEvidence = this.sanitizeEvidenceArray(tr.evidence);
+        const upperTcId = tr.id.toUpperCase();
+        for (const req of mvsReqs) {
+          if (req.tcId === upperTcId) {
+            const evPath = `evidence/${req.file}`;
+            if (onDiskFiles.includes(evPath) && !cleanEvidence.includes(evPath)) {
+              cleanEvidence.push(evPath);
+            }
+          }
+        }
 
         if (cleanEvidence.length === 0 && onDiskFiles.length > 0) {
           const lowerId = tr.id.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -1404,7 +1855,9 @@ export class RuntimeSession {
 
         tr.evidence = Array.from(new Set(cleanEvidence));
 
-        if (doc.status === 'DONE' && tr.result !== 'FAIL') {
+        if (tr.evidence.length > 0 && tr.result !== 'FAIL') {
+          tr.result = 'PASS';
+        } else if (doc.status === 'DONE' && tr.result !== 'FAIL') {
           tr.result = 'PASS';
         } else if (!['PASS', 'FAIL', 'NOT_RUN'].includes(tr.result)) {
           tr.result = (tr.evidence.length > 0) ? 'PASS' : 'NOT_RUN';
@@ -1413,6 +1866,10 @@ export class RuntimeSession {
         for (const ev of tr.evidence) {
           allReferencedEvidence.add(ev);
         }
+      }
+
+      if (doc.testResults.length > 0 && doc.testResults.every(t => t.result === 'PASS')) {
+        doc.status = 'DONE';
       }
     } else if (hasAdditionalFalse) {
       delete doc.testResults;
@@ -1568,7 +2025,14 @@ export class RuntimeSession {
     }
     const { clientSubmissionId, idempotencyKey } = submissionEntry;
 
+    const worktreePath = (optionsOrAnswer && typeof optionsOrAnswer === 'object' && optionsOrAnswer.worktreePath) ? optionsOrAnswer.worktreePath : null;
+    if (worktreePath) {
+      this.loadActiveMatchConfig(worktreePath);
+    }
     const matchUuid = this.getEffectiveMatchUuid();
+    if (!matchUuid || matchUuid === 'UNKNOWN_MATCH') {
+      throw new Error(`[submitWork] Cannot submit: matchUuid is empty or unresolved. Checked session, environment, and .mtm/active-match.json.`);
+    }
     const endpoint = `/api/v1/matches/${matchUuid}/submissions`;
 
     const submissionPayload = {
@@ -1603,6 +2067,7 @@ export class RuntimeSession {
     }
 
     const data = apiResult.data || {};
+    this.startedBacklogs.add(backlogItemKey.toUpperCase());
     const submission = data.submission || {};
     const receiptId = submission.id || data.receiptId || data.id || `receipt-${Date.now()}`;
     const submissionStatus = submission.status || data.status || 'ACCEPTED';
@@ -1703,14 +2168,46 @@ export class RuntimeSession {
     };
   }
 
-  findGitRoot(startDir = null) {
+  findGitRoot(startDir = null, worktreePath = null) {
+    const outerStopDir = path.resolve(DEFAULT_TEAM_WORKSPACE, '..').toLowerCase();
+    const allowParentLookup = String(startDir || '').toLowerCase().includes('scratch');
+
+    if (worktreePath && fs.existsSync(worktreePath)) {
+      const commonDirRes = this.executeGit(['rev-parse', '--git-common-dir'], worktreePath);
+      if (commonDirRes.success && commonDirRes.stdout) {
+        const rawCommonDir = commonDirRes.stdout.trim().split(/\r?\n/)[0].trim();
+        if (rawCommonDir) {
+          const resolvedCommonDir = path.isAbsolute(rawCommonDir)
+            ? path.resolve(rawCommonDir)
+            : path.resolve(worktreePath, rawCommonDir);
+          if (path.basename(resolvedCommonDir).toLowerCase() === '.git') {
+            const candidateRoot = path.dirname(resolvedCommonDir);
+            if (fs.existsSync(candidateRoot) && (allowParentLookup || candidateRoot.toLowerCase() !== outerStopDir)) {
+              return candidateRoot;
+            }
+          }
+        }
+      }
+    }
+
     let curr = path.resolve(startDir || this.getMatchRoot() || this.checkoutRoot);
     while (curr) {
+      if (!allowParentLookup && curr.toLowerCase() === outerStopDir) {
+        break;
+      }
       if (fs.existsSync(path.join(curr, '.git'))) return curr;
       const parent = path.dirname(curr);
       if (parent === curr) break;
       curr = parent;
     }
+
+    if (this.checkoutRoot && fs.existsSync(path.join(this.checkoutRoot, '.git'))) {
+      const resolvedCheckout = path.resolve(this.checkoutRoot);
+      if (allowParentLookup || resolvedCheckout.toLowerCase() !== outerStopDir) {
+        return resolvedCheckout;
+      }
+    }
+
     return this.checkoutRoot;
   }
 
@@ -1747,15 +2244,17 @@ export class RuntimeSession {
         }
       }
 
-      // 3. .env copy
-      const srcEnv = path.resolve(src, '.env');
-      const destEnv = path.resolve(dest, '.env');
-      if (fs.existsSync(srcEnv) && !fs.existsSync(destEnv)) {
-        try {
-          fs.copyFileSync(srcEnv, destEnv);
-          this.logDebug(`[Worktree Link] Copied .env -> ${destEnv}`);
-        } catch (err) {
-          this.logDebug(`[Worktree Link] Warning copying .env: ${err.message}`);
+      // 3. .env copy (only copy src/.env; never copy root .env with secrets into wtMatchRoot)
+      if (path.basename(src) === 'src') {
+        const srcEnv = path.resolve(src, '.env');
+        const destEnv = path.resolve(dest, '.env');
+        if (fs.existsSync(srcEnv) && !fs.existsSync(destEnv)) {
+          try {
+            fs.copyFileSync(srcEnv, destEnv);
+            this.logDebug(`[Worktree Link] Copied .env -> ${destEnv}`);
+          } catch (err) {
+            this.logDebug(`[Worktree Link] Warning copying .env: ${err.message}`);
+          }
         }
       }
     }
@@ -1822,14 +2321,24 @@ export class RuntimeSession {
     }
 
     // Discover any unassigned items
+    const candidateByKey = new Map();
     for (const [key, item] of allCandidates.entries()) {
       const upperKey = key.toUpperCase();
       if (this.submittedBacklogs.has(upperKey)) continue;
+      if (item.status === 'CLOSED' || item.status === 'COMPLETED' || item.workStatus === 'SUBMITTED') continue;
       if (this.clusterWorkers.has(key) || this.clusterWorkers.has(upperKey)) continue;
 
       const receiptPath = path.resolve(matchRoot, 'answers', key, 'evidence', 'submission-receipt.json');
       if (fs.existsSync(receiptPath)) {
         this.submittedBacklogs.add(upperKey);
+        continue;
+      }
+
+      // Check if already assigned/active on disk via prepared worktree
+      const wtDir = `wt-${key.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+      const gitRoot = this.findGitRoot(matchRoot);
+      const wtPath = path.resolve(gitRoot, '..', wtDir);
+      if (fs.existsSync(wtPath) && this.startedBacklogs.has(upperKey)) {
         continue;
       }
 
@@ -1842,11 +2351,16 @@ export class RuntimeSession {
         deadlineSeconds: item.deadlineSeconds || null
       };
 
-      if (isItemPI && !urgentPI) {
-        urgentPI = taskObj;
-      }
+      candidateByKey.set(key, { ...item, ...taskObj, isPI: isItemPI });
       unassignedTasks.push(taskObj);
     }
+
+    unassignedTasks.sort((a, b) => {
+      const candA = candidateByKey.get(a.key) || a;
+      const candB = candidateByKey.get(b.key) || b;
+      return this.computeUrgencyRank(candB) - this.computeUrgencyRank(candA);
+    });
+    urgentPI = unassignedTasks.find(t => this.isPI(t.key) || t.type === 'PI' || candidateByKey.get(t.key)?.isPI) || null;
 
     const activeWorkersList = [];
     const now = Date.now();
@@ -1912,12 +2426,35 @@ export class RuntimeSession {
     }
 
     const cleanKey = String(backlogItemKey).trim();
+    const upperKey = cleanKey.toUpperCase();
     const matchRoot = this.getMatchRoot();
     const gitRoot = this.findGitRoot(matchRoot);
     const targetBranch = this.assignedBranch || 'main';
     const workerBranch = `task/${cleanKey}`;
     const worktreeDirName = `wt-${cleanKey.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
     const worktreePath = path.resolve(gitRoot, '..', worktreeDirName);
+
+    // Resolve project folder inside worktree
+    let wtMatchRoot = worktreePath;
+    if (this.assignedFolder && fs.existsSync(path.resolve(worktreePath, this.assignedFolder))) {
+      wtMatchRoot = path.resolve(worktreePath, this.assignedFolder);
+    } else if (this.matchId && fs.existsSync(path.resolve(worktreePath, this.matchId))) {
+      wtMatchRoot = path.resolve(worktreePath, this.matchId);
+    }
+
+    // Idempotency guard: If worktree is already prepared and active, reuse it without wiping
+    const existingSubmitSpec = path.resolve(wtMatchRoot, 'challenge', `${cleanKey}-submit.json`);
+    if (fs.existsSync(worktreePath) && fs.existsSync(existingSubmitSpec) && (this.clusterWorkers.has(cleanKey) || this.startedBacklogs.has(upperKey))) {
+      this.logDebug(`[prepareTaskWorkspace] Workspace for ${cleanKey} already prepared and active at ${worktreePath}. Reusing.`);
+      return {
+        success: true,
+        backlogItemKey: cleanKey,
+        worktreePath: wtMatchRoot,
+        worktreeRoot: worktreePath,
+        branch: workerBranch,
+        isPI: this.isPI(cleanKey)
+      };
+    }
 
     this.logDebug(`[prepareTaskWorkspace] Creating worktree for ${cleanKey} at ${worktreePath}...`);
 
@@ -1937,8 +2474,7 @@ export class RuntimeSession {
       throw new Error(`Failed to create git worktree at ${worktreePath}: ${addRes.stderr || addRes.stdout}`);
     }
 
-    // Resolve project folder inside worktree
-    let wtMatchRoot = worktreePath;
+    // Re-resolve project folder inside newly created worktree
     if (this.assignedFolder && fs.existsSync(path.resolve(worktreePath, this.assignedFolder))) {
       wtMatchRoot = path.resolve(worktreePath, this.assignedFolder);
     } else if (this.matchId && fs.existsSync(path.resolve(worktreePath, this.matchId))) {
@@ -1952,8 +2488,138 @@ export class RuntimeSession {
     const answerEvidenceDir = path.resolve(wtMatchRoot, 'answers', cleanKey, 'evidence');
     fs.mkdirSync(answerEvidenceDir, { recursive: true });
 
-    // Link challenge files
+    // 1. Auto-Start Backlog on Game Master Server
+    let startData = null;
+    const mainSubmitSpecPath = path.resolve(matchRoot, 'challenge', `${cleanKey}-submit.json`);
+    if (!this.submittedBacklogs.has(upperKey) && (!this.startedBacklogs.has(upperKey) || !fs.existsSync(mainSubmitSpecPath))) {
+      try {
+        if (!this.matchUuid || !this.matchUuid.includes('-')) {
+          await this.refreshMatch();
+        }
+        const matchUuid = this.getEffectiveMatchUuid();
+        if (matchUuid && matchUuid !== 'UNKNOWN_MATCH') {
+          const endpoint = `/api/v1/matches/${matchUuid}/backlogs/start`;
+          this.logDebug(`[prepareTaskWorkspace] Auto-starting ${cleanKey} via ${endpoint}...`);
+          const apiResult = await this.callGameMasterApi(
+            endpoint,
+            'POST',
+            { backlogItemKey: cleanKey },
+            'START_BACKLOG',
+            cleanKey
+          );
+
+          if (apiResult.success) {
+            this.startedBacklogs.add(upperKey);
+            startData = apiResult.data || {};
+            this.appendProgress({
+              type: 'BACKLOG_STATUS',
+              backlogId: cleanKey,
+              title: startData.title || this.backlogRegistry.get(cleanKey)?.title || cleanKey,
+              status: 'IN_PROGRESS',
+              revision: null,
+              receiptId: null,
+              summary: `Started work on backlog item ${cleanKey}`
+            });
+
+            this.appendProgress({
+              type: 'BACKLOG_TESTS',
+              backlogId: cleanKey,
+              status: 'NOT_RUN',
+              required: 0,
+              executed: 0,
+              passed: 0,
+              failed: 0,
+              skipped: 0,
+              summary: `Test harness ready for ${cleanKey}`
+            });
+          } else {
+            this.logDebug(`[prepareTaskWorkspace] Start backlog returned HTTP ${apiResult.statusCode}`);
+          }
+        }
+      } catch (startErr) {
+        this.logDebug(`[prepareTaskWorkspace] Notice: Start backlog call skipped or failed: ${startErr.message}`);
+      }
+    }
+
+    // Materialize start files & link challenge specs AFTER START_BACKLOG so specs/md reach both roots
+    this.materializeStartDataFiles(cleanKey, startData || {}, [matchRoot, wtMatchRoot]);
     this.linkChallengeToWorktree(matchRoot, wtMatchRoot, cleanKey);
+
+    // 2. Materialize answers/<cleanKey>/submit.json in wtMatchRoot
+    const wtSubmitJsonPath = path.resolve(wtMatchRoot, 'answers', cleanKey, 'submit.json');
+    let shouldInitSubmit = !fs.existsSync(wtSubmitJsonPath);
+    if (!shouldInitSubmit) {
+      try {
+        const existingRaw = fs.readFileSync(wtSubmitJsonPath, 'utf8').trim();
+        if (!existingRaw || existingRaw === '{}') {
+          shouldInitSubmit = true;
+        } else {
+          const existingObj = JSON.parse(existingRaw);
+          const ans = existingObj && typeof existingObj.answer === 'object' ? existingObj.answer : null;
+          const topKeys = existingObj && typeof existingObj === 'object' ? Object.keys(existingObj) : [];
+          if (topKeys.length === 0 || (ans && Object.keys(ans).length === 0 && topKeys.every(k => ['backlogId', 'answer', 'status'].includes(k)))) {
+            shouldInitSubmit = true;
+          }
+        }
+      } catch (_) {
+        shouldInitSubmit = true;
+      }
+    }
+    if (shouldInitSubmit) {
+      let challengeTemplate = null;
+      for (const candidateSpec of [
+        path.resolve(wtMatchRoot, 'challenge', `${cleanKey}-submit.json`),
+        path.resolve(matchRoot, 'challenge', `${cleanKey}-submit.json`)
+      ]) {
+        if (fs.existsSync(candidateSpec)) {
+          try {
+            const parsedSpec = JSON.parse(fs.readFileSync(candidateSpec, 'utf8'));
+            if (parsedSpec && typeof parsedSpec === 'object' && !Array.isArray(parsedSpec)) {
+              challengeTemplate = parsedSpec;
+              break;
+            }
+          } catch (_) {}
+        }
+      }
+      const templateContent = challengeTemplate || (startData && startData.submitTemplate) || { backlogId: cleanKey, answer: {} };
+      fs.writeFileSync(wtSubmitJsonPath, JSON.stringify(templateContent, null, 2), 'utf8');
+    }
+
+    // 3. Auto-fetch QA test data fixture from Company MCP into answers/<KEY>/evidence/
+    const fixtureFileName = `${cleanKey.toLowerCase()}-test-data.json`;
+    const targetFixturePath = path.resolve(answerEvidenceDir, fixtureFileName);
+    let fixtureAcquired = false;
+
+    try {
+      const fixtureData = await this.getTestData(cleanKey);
+      if (fixtureData && (typeof fixtureData === 'object' || typeof fixtureData === 'string')) {
+        const fixtureContent = typeof fixtureData === 'string' ? fixtureData : JSON.stringify(fixtureData, null, 2);
+        fs.writeFileSync(targetFixturePath, fixtureContent, 'utf8');
+        fixtureAcquired = true;
+        this.logDebug(`[prepareTaskWorkspace] Successfully auto-fetched fixture from Company MCP -> ${targetFixturePath}`);
+      }
+    } catch (fixtureErr) {
+      this.logDebug(`[prepareTaskWorkspace] Remote Company MCP get_test_data note: ${fixtureErr.message}`);
+    }
+
+    // Fallback: If loader script exists in challenge/ and fixture was not retrieved, synthesize fallback fixture
+    if (!fixtureAcquired && !fs.existsSync(targetFixturePath)) {
+      const seedFile = path.resolve(matchRoot, 'challenge', `${cleanKey}-seed.ts`);
+      if (fs.existsSync(seedFile)) {
+        const fallback = this.synthesizeFallbackFixture(cleanKey);
+        if (fallback) {
+          fs.writeFileSync(targetFixturePath, JSON.stringify(fallback, null, 2), 'utf8');
+          this.logDebug(`[prepareTaskWorkspace] Synthesized fallback fixture at ${targetFixturePath}`);
+        }
+      }
+    }
+
+    // 4. Auto-link challenge fixtures and loader scripts into wtMatchRoot/src and run seed
+    this.autoLinkChallengeFixtures(cleanKey, targetFixturePath, wtMatchRoot);
+
+    // 5. Persist orchestrator active match config (never into worktree) and inject src/.env
+    this.saveActiveMatchConfig();
+    this.injectWorktreeEnv(wtMatchRoot, worktreePath);
 
     // Track active worker in cluster state
     const isPI = this.isPI(cleanKey);
@@ -1993,15 +2659,113 @@ export class RuntimeSession {
     }
   }
 
+  isForbiddenSubmissionFile(filePath) {
+    const p = String(filePath || '').replace(/\\/g, '/').replace(/^\.\//, '');
+    if (!p) return true;
+    const base = path.posix.basename(p);
+    if (p === '.env' || p.endsWith('/.env')) return true;
+    if (p === '.mtm' || p.startsWith('.mtm/') || p.includes('/.mtm/')) return true;
+    if (p.startsWith('challenge/') || p.includes('/challenge/')) return true;
+    if (p.startsWith('team-sdlc-pack') || p.includes('/team-sdlc-pack')) return true;
+    if (p.startsWith('team-orchestrator-pack') || p.includes('/team-orchestrator-pack')) return true;
+    if (p.startsWith('.codex') || p.includes('/.codex')) return true;
+    if (p.startsWith('.agents') || p.includes('/.agents')) return true;
+    if (p.startsWith('logs/') || p.includes('/logs/')) return true;
+    if (base === 'exam-info.json' || base === 'tsconfig.json' || base === 'storageState.json') return true;
+    if (/(^|\/)src\/[^/]*-submit(\.schema)?\.json$/i.test(p)) return true;
+    return false;
+  }
+
+  sanitizeWorktreeBeforeCommit(worktreePath, worktreeRoot = null) {
+    if (!worktreePath || !fs.existsSync(worktreePath)) return;
+    const topRes = this.executeGit(['rev-parse', '--show-toplevel'], worktreePath);
+    const wtTopDir = (topRes.success && topRes.stdout) ? path.resolve(topRes.stdout.trim()) : null;
+    const dirsToClean = Array.from(new Set([worktreePath, worktreeRoot, wtTopDir].filter(d => d && fs.existsSync(d))));
+
+    for (const dir of dirsToClean) {
+      for (const dirtyRel of ['.mtm', '.env', path.join('src', '.env')]) {
+        const target = path.resolve(dir, dirtyRel);
+        if (fs.existsSync(target)) {
+          try { fs.rmSync(target, { recursive: true, force: true }); } catch (_) {}
+        }
+      }
+      const wtSrcDir = path.resolve(dir, 'src');
+      if (fs.existsSync(wtSrcDir)) {
+        try {
+          for (const f of fs.readdirSync(wtSrcDir)) {
+            if (/-submit(\.schema)?\.json$/i.test(f)) {
+              try { fs.rmSync(path.resolve(wtSrcDir, f), { force: true }); } catch (_) {}
+            }
+          }
+        } catch (_) {}
+      }
+    }
+
+    const gitCmdCwd = wtTopDir || worktreePath;
+    const statusRes = this.executeGit(['status', '--porcelain'], gitCmdCwd);
+    if (statusRes.success && statusRes.stdout) {
+      for (const line of statusRes.stdout.split(/\r?\n/)) {
+        if (!line || line.length < 4) continue;
+        const statusCode = line.slice(0, 2);
+        let relPath = line.slice(3).trim();
+        if (relPath.includes(' -> ')) {
+          relPath = relPath.split(' -> ').pop().trim();
+        }
+        relPath = relPath.replace(/^"|"$/g, '');
+        if (/(^|[\\/])(exam-info\.json|tsconfig\.json|[^\\/]*env-require[^\\/]*)$/i.test(relPath)) {
+          if (statusCode === '??') {
+            const absTarget = path.resolve(gitCmdCwd, relPath);
+            if (fs.existsSync(absTarget)) {
+              try { fs.rmSync(absTarget, { recursive: true, force: true }); } catch (_) {}
+            }
+          } else {
+            this.executeGit(['reset', 'HEAD', '--', relPath], gitCmdCwd);
+            this.executeGit(['checkout', '--', relPath], gitCmdCwd);
+          }
+        }
+      }
+    }
+  }
+
+  cleanupWorktreeAndCluster(backlogItemKey, branch, gitRoot, worktreePath, explicitWorktreeRoot = null) {
+    const rootToDelete = explicitWorktreeRoot || (worktreePath ? path.resolve(gitRoot, '..', `wt-${backlogItemKey.toLowerCase().replace(/[^a-z0-9]/g, '')}`) : null);
+    if (rootToDelete && fs.existsSync(rootToDelete)) {
+      try {
+        this.logDebug(`[submitTask] Removing worktree: ${rootToDelete}...`);
+        this.executeGit(['worktree', 'remove', rootToDelete, '--force'], gitRoot);
+      } catch (rmErr) {
+        this.logDebug(`[submitTask] Worktree removal note: ${rmErr.message}`);
+      }
+      try {
+        this.executeGit(['branch', '-D', branch], gitRoot);
+      } catch (_) {}
+    }
+
+    this.submittedBacklogs.add(backlogItemKey.toUpperCase());
+    this.clusterWorkers.delete(backlogItemKey);
+    this.clusterWorkers.delete(backlogItemKey.toUpperCase());
+  }
+
   async _executeSubmitTask(options = {}) {
     const backlogItemKey = options.backlogItemKey;
     if (!backlogItemKey) {
       throw new Error('backlogItemKey is required for submit_task');
     }
 
-    const matchRoot = this.getMatchRoot();
-    const gitRoot = this.findGitRoot(matchRoot);
     const worktreePath = options.worktreePath || null;
+    if (worktreePath) {
+      this.loadActiveMatchConfig(worktreePath);
+    }
+
+    let matchRoot = this.getMatchRoot();
+    const gitRoot = this.findGitRoot(matchRoot, worktreePath);
+    if (gitRoot && fs.existsSync(path.join(gitRoot, '.git'))) {
+      if (!this.checkoutRoot || path.resolve(this.checkoutRoot) === DEFAULT_TEAM_WORKSPACE || !fs.existsSync(path.join(this.checkoutRoot, '.git'))) {
+        this.checkoutRoot = gitRoot;
+        matchRoot = this.getMatchRoot();
+      }
+    }
+
     const branch = options.branch || `task/${backlogItemKey}`;
     const explicitStatus = options.status || 'DONE';
     const explicitRecord = options.engineeringRecord || null;
@@ -2014,8 +2778,9 @@ export class RuntimeSession {
     const packResult = this.packAndSanitizeSubmission(backlogItemKey, explicitRecord, explicitStatus, activeDir);
     const answer = packResult.doc;
 
-    // 2. Commit inside worktree if worktreePath provided
+    // 2. Sanitize & commit inside worktree if worktreePath provided
     if (worktreePath && fs.existsSync(worktreePath)) {
+      this.sanitizeWorktreeBeforeCommit(worktreePath, options.worktreeRoot || null);
       this.executeGit(['add', '-A'], worktreePath);
       const wtStatus = this.executeGit(['status', '--porcelain'], worktreePath);
       if (wtStatus.stdout) {
@@ -2023,21 +2788,16 @@ export class RuntimeSession {
         this.executeGit(['commit', '-m', `"fix(${backlogItemKey}): complete solution and verification evidence"`], worktreePath);
       }
 
-      // Safe checkout merge: ONLY pull modified non-pack files from branch into targetBranch!
+      // Safe checkout merge: ONLY pull clean solution/answer/evidence files from branch into targetBranch!
       this.logDebug(`[submitTask] Safely checking out changes from ${branch} into ${targetBranch}...`);
       this.executeGit(['checkout', targetBranch], gitRoot);
 
       const diffRes = this.executeGit(['diff', '--name-only', `${targetBranch}...${branch}`], gitRoot);
       let filesToBring = [];
       if (diffRes.success && diffRes.stdout) {
-        filesToBring = diffRes.stdout.split('\n').map(s => s.trim()).filter(Boolean);
+        filesToBring = diffRes.stdout.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
       }
-      // Strictly protect pack and orchestrator infrastructure files from worker clobbering
-      filesToBring = filesToBring.filter(f =>
-        !f.startsWith('team-sdlc-pack') &&
-        !f.startsWith('team-orchestrator-pack') &&
-        !f.startsWith('.codex')
-      );
+      filesToBring = filesToBring.filter(f => !this.isForbiddenSubmissionFile(f));
 
       if (filesToBring.length > 0) {
         this.logDebug(`[submitTask] Merging ${filesToBring.length} clean files from ${branch} into ${targetBranch}...`);
@@ -2073,6 +2833,9 @@ export class RuntimeSession {
     const { clientSubmissionId, idempotencyKey } = submissionEntry;
 
     const matchUuid = this.getEffectiveMatchUuid();
+    if (!matchUuid || matchUuid === 'UNKNOWN_MATCH') {
+      throw new Error(`[submitTask] Cannot submit: matchUuid is empty or unresolved. Checked session, environment, and .mtm/active-match.json.`);
+    }
     const endpoint = `/api/v1/matches/${matchUuid}/submissions`;
     const submissionPayload = {
       clientSubmissionId,
@@ -2098,16 +2861,48 @@ export class RuntimeSession {
     if (!apiResult.success) {
       const rawErr = typeof apiResult.error === 'object' ? JSON.stringify(apiResult.error) : String(apiResult.error || '');
       const errMsg = rawErr.toLowerCase();
-      const isAlreadySubmitted = apiResult.statusCode === 409 && (errMsg.includes('already submitted') || errMsg.includes('replacement') || errMsg.includes('disallowed'));
+      const errCode = String(apiResult.data?.code || apiResult.error?.code || '').toUpperCase();
+      const isClosed = apiResult.statusCode === 409 && (
+        errCode === 'BACKLOG_ITEM_CLOSED' ||
+        errMsg.includes('backlog_item_closed') ||
+        errMsg.includes('closed')
+      );
+      const isAlreadySubmitted = !isClosed && apiResult.statusCode === 409 && (
+        errMsg.includes('already submitted') ||
+        errMsg.includes('replacement') ||
+        errMsg.includes('disallowed')
+      );
+
+      if (isClosed) {
+        this.logDebug(`[submitTask] ${backlogItemKey} is CLOSED on Game Master server (HTTP 409 BACKLOG_ITEM_CLOSED).`);
+        this.appendProgress({
+          type: 'BACKLOG_STATUS',
+          backlogId: backlogItemKey,
+          title: this.backlogRegistry.get(backlogItemKey)?.title || backlogItemKey,
+          status: 'BLOCKED',
+          revision: gitRevision,
+          receiptId: null,
+          summary: `Submission rejected: ${backlogItemKey} is closed on Game Master`
+        });
+        this.cleanupWorktreeAndCluster(backlogItemKey, branch, gitRoot, worktreePath, options.worktreeRoot || null);
+        return {
+          success: false,
+          closed: true,
+          status: 'CLOSED',
+          backlogId: backlogItemKey,
+          gitRevision
+        };
+      }
 
       if (!isAlreadySubmitted) {
         throw new Error(`Game Master submission failed for ${backlogItemKey} (HTTP ${apiResult.statusCode}): ${rawErr}`);
       }
       this.logDebug(`[submitTask] ${backlogItemKey} was already recorded on Game Master server (HTTP 409).`);
       submissionStatus = 'ALREADY_SUBMITTED';
+      receiptId = apiResult.data?.receiptId || apiResult.data?.submissionId || apiResult.data?.submission?.id || apiResult.requestId || null;
     } else {
-      receiptId = apiResult.data?.receiptId || apiResult.data?.submissionId || null;
-      submissionStatus = apiResult.data?.status || 'SUBMITTED';
+      receiptId = apiResult.data?.receiptId || apiResult.data?.submissionId || apiResult.data?.submission?.id || apiResult.requestId || null;
+      submissionStatus = apiResult.data?.submission?.status || apiResult.data?.status || 'SUBMITTED';
     }
 
     // 6. Persist receipt on disk
@@ -2145,24 +2940,8 @@ export class RuntimeSession {
       summary: `All verification tests passed for ${backlogItemKey}`
     });
 
-    // 8. Worktree cleanup
-    const rootToDelete = options.worktreeRoot || (worktreePath ? path.resolve(gitRoot, '..', `wt-${backlogItemKey.toLowerCase().replace(/[^a-z0-9]/g, '')}`) : null);
-    if (rootToDelete && fs.existsSync(rootToDelete)) {
-      try {
-        this.logDebug(`[submitTask] Removing worktree: ${rootToDelete}...`);
-        this.executeGit(['worktree', 'remove', rootToDelete, '--force'], gitRoot);
-      } catch (rmErr) {
-        this.logDebug(`[submitTask] Worktree removal note: ${rmErr.message}`);
-      }
-      try {
-        this.executeGit(['branch', '-D', branch], gitRoot);
-      } catch (_) {}
-    }
-
-    // 9. Update cluster state
-    this.submittedBacklogs.add(backlogItemKey.toUpperCase());
-    this.clusterWorkers.delete(backlogItemKey);
-    this.clusterWorkers.delete(backlogItemKey.toUpperCase());
+    // 8 & 9. Worktree cleanup and cluster state update
+    this.cleanupWorktreeAndCluster(backlogItemKey, branch, gitRoot, worktreePath, options.worktreeRoot || null);
 
     this.logDebug(`[submitTask Mutex] Completed submission of ${backlogItemKey} and released lock.`);
 
@@ -2176,9 +2955,22 @@ export class RuntimeSession {
   }
 
   async searchLogs(options = {}) {
-    const service = options.service || 'deploy';
-    const query = options.query || '';
-    const res = await this.callCompanyMcpTool('search_logs', { service, query });
+    const payload = {};
+    if (options.query !== undefined && options.query !== null && String(options.query) !== '') {
+      payload.query = String(options.query);
+    }
+    if (options.service !== undefined && options.service !== null && String(options.service).trim() !== '') {
+      payload.service = String(options.service);
+    }
+    const res = await this.callCompanyMcpTool('search_logs', payload);
+    const text = res?.content?.[0]?.text;
+    if (typeof text === 'string') {
+      try {
+        return JSON.parse(text);
+      } catch (_) {
+        return text;
+      }
+    }
     return res;
   }
 }

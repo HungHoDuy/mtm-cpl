@@ -92,6 +92,10 @@ for (const c of contracts) {
 const codeFiles = [
   'src/runtime-session.mjs',
   'bin/runtime-server.mjs',
+  'bin/submit-cli.mjs',
+  'bin/resource-board.mjs',
+  'scripts/resource-board.mjs',
+  'scripts/evidence-runner.mjs',
   'scripts/install.mjs',
   'scripts/check-distribution.mjs'
 ];
@@ -122,10 +126,7 @@ if (fs.existsSync(tomlPath) && fs.statSync(tomlPath).size > 0) {
 // 7. Verify Agent Profiles (agents/*.toml)
 const agentProfiles = [
   'agents/team-orchestrator.toml',
-  'agents/team-business-analyst.toml',
-  'agents/team-developer.toml',
-  'agents/team-tester.toml',
-  'agents/team-cyber-security.toml'
+  'agents/team-task-worker.toml'
 ];
 for (const a of agentProfiles) {
   const aPath = path.resolve(packRoot, a);

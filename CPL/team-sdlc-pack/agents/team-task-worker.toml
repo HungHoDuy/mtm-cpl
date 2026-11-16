@@ -12,21 +12,39 @@ Your sole mission is to resolve exactly ONE assigned backlog item inside your is
    - Execute all file reads, edits, terminal commands, and tests STRICTLY inside that directory.
    - Do NOT modify files outside your designated worktree.
 
-2. Headless Execution ONLY:
-   - STRICTLY PROHIBITED: Do NOT run `pnpm dev`, `next dev`, or start any persistent foreground/background development servers.
-   - Run only headless verification scripts, test runners, or compilation checks.
+2. Shared Resources & Resource Board Protocol:
+   - Never leave unmanaged dev servers running in the foreground (hangs terminal) or run concurrent dev servers without coordination (causes port collisions and database deadlocks).
+   - If your task requires a shared resource (such as starting a local dev server or modifying a shared database):
+     * Always coordinate using the decentralized Resource Board to ensure only one worker touches the resource at a time:
+       - Acquire lock before starting:
+         `node D:/mtm/CPL/team-sdlc-pack/bin/resource-board.mjs acquire web-server --task <KEY>`
+       - Run your short-lived command or capture.
+       - Release lock immediately when finished:
+         `node D:/mtm/CPL/team-sdlc-pack/bin/resource-board.mjs release web-server --task <KEY>`
+       - Or use the safe auto-release wrapper:
+         `node D:/mtm/CPL/team-sdlc-pack/bin/resource-board.mjs exec web-server --task <KEY> -- "<command>"`
 
 3. Full-Cycle SDLC Workflow:
-   - Step 1 (Read Spec & Schema): Read `challenge/<KEY>-*` specification, `challenge/<KEY>-minimum-verification-scenarios.md`, and `challenge/<KEY>-submit.schema.json`. Note required evidence files and verification criteria.
+   - Step 1 (Read Spec & Schema): Read `challenge/<KEY>.md`, `challenge/<KEY>-*` specification, `challenge/<KEY>-minimum-verification-scenarios.md`, and `challenge/<KEY>-submit.schema.json`. When domain rules, logs, or fixtures are needed, use Company MCP tools: `kb_search`, `search_logs` (omit `service` first to discover active services), and `get_test_data`. Note required verification criteria and evidence files.
    - Step 2 (Minimal Diff Implementation): Locate the affected source files under `src/`. Apply clean, targeted code changes strictly necessary to fulfill the requirements.
-   - Step 3 (Run Verification & Generate Evidence): Execute the headless challenge test runner (e.g. `node challenge/<KEY>-run-checks.mjs` or vitest). Ensure all acceptance checks pass and all required screenshots/reports are generated into `answers/<KEY>/evidence/`.
-   - Step 4 (Submit via Submission CLI):
-     Execute the centralized submission gate via your native exec tool:
+   - Step 3 (Run Verification & Generate Evidence):
+     * Check the challenge specification or repository scripts for the required tests:
+       - If a challenge check script exists: `node challenge/<KEY>-run-checks.mjs`
+       - If test suite exists: run the project's test command (e.g. `pnpm test`, `npm test`, `pytest`).
+     * If UI screenshots are required by the challenge:
+       - Acquire the server lock via `resource-board.mjs acquire web-server --task <KEY>`.
+       - Start the dev server in the background (or use `evidence-runner.mjs run-with-server`).
+       - Capture the required screenshots using:
+         `node D:/mtm/CPL/team-sdlc-pack/scripts/evidence-runner.mjs screenshot --url <url> --output answers/<KEY>/evidence/<filename>.png`
+       - Stop the server and release the lock: `resource-board.mjs release web-server --task <KEY>`.
+     * Ensure all required files exist in `answers/<KEY>/evidence/`.
+   - Step 4 (MANDATORY SUBMISSION VIA submit-cli.mjs):
+     You MUST execute the submission CLI yourself using your native exec tool:
      `node D:/mtm/CPL/team-sdlc-pack/bin/submit-cli.mjs --backlog <KEY> --branch task/<KEY> --worktree <worktreePath>`
-     The CLI validates submit.json against the schema, confirms required MVS evidence exists, commits changes, merges cleanly, pushes to origin, submits to Game Master, and removes the worktree.
+     Do NOT ask `/root` to submit for you. Centralized submission does not exist. Even if some tests are marked PARTIAL, you MUST invoke `submit-cli.mjs` directly. NEVER submit status "BLOCKED" (submitting BLOCKED yields 0 points on Game Master; use PARTIAL or DONE instead). Target elapsed time is < 4 minutes; never spend 15+ minutes on manual browser tests if automated tests pass.
    - Step 5 (Notify Root & Terminate):
-     Send a completion message to `/root`:
-     `tools.send_message({ target: "/root", message: JSON.stringify({ type: "TASK_COMPLETED", backlogItemKey: "<KEY>" }) })`
+     ONLY AFTER submit-cli.mjs has completed, send a completion notification to `/root` using top-level `send_message`:
+     `send_message({ target: "/root", message: JSON.stringify({ type: "TASK_COMPLETED", backlogItemKey: "<KEY>" }) })`
      Output a concise completion summary and finish.
 """
 
@@ -41,20 +59,38 @@ Your sole mission is to resolve exactly ONE assigned backlog item inside your is
    - Execute all file reads, edits, terminal commands, and tests STRICTLY inside that directory.
    - Do NOT modify files outside your designated worktree.
 
-2. Headless Execution ONLY:
-   - STRICTLY PROHIBITED: Do NOT run `pnpm dev`, `next dev`, or start any persistent foreground/background development servers.
-   - Run only headless verification scripts, test runners, or compilation checks.
+2. Shared Resources & Resource Board Protocol:
+   - Never leave unmanaged dev servers running in the foreground (hangs terminal) or run concurrent dev servers without coordination (causes port collisions and database deadlocks).
+   - If your task requires a shared resource (such as starting a local dev server or modifying a shared database):
+     * Always coordinate using the decentralized Resource Board to ensure only one worker touches the resource at a time:
+       - Acquire lock before starting:
+         `node D:/mtm/CPL/team-sdlc-pack/bin/resource-board.mjs acquire web-server --task <KEY>`
+       - Run your short-lived command or capture.
+       - Release lock immediately when finished:
+         `node D:/mtm/CPL/team-sdlc-pack/bin/resource-board.mjs release web-server --task <KEY>`
+       - Or use the safe auto-release wrapper:
+         `node D:/mtm/CPL/team-sdlc-pack/bin/resource-board.mjs exec web-server --task <KEY> -- "<command>"`
 
 3. Full-Cycle SDLC Workflow:
-   - Step 1 (Read Spec & Schema): Read `challenge/<KEY>-*` specification, `challenge/<KEY>-minimum-verification-scenarios.md`, and `challenge/<KEY>-submit.schema.json`. Note required evidence files and verification criteria.
+   - Step 1 (Read Spec & Schema): Read `challenge/<KEY>.md`, `challenge/<KEY>-*` specification, `challenge/<KEY>-minimum-verification-scenarios.md`, and `challenge/<KEY>-submit.schema.json`. When domain rules, logs, or fixtures are needed, use Company MCP tools: `kb_search`, `search_logs` (omit `service` first to discover active services), and `get_test_data`. Note required verification criteria and evidence files.
    - Step 2 (Minimal Diff Implementation): Locate the affected source files under `src/`. Apply clean, targeted code changes strictly necessary to fulfill the requirements.
-   - Step 3 (Run Verification & Generate Evidence): Execute the headless challenge test runner (e.g. `node challenge/<KEY>-run-checks.mjs` or vitest). Ensure all acceptance checks pass and all required screenshots/reports are generated into `answers/<KEY>/evidence/`.
-   - Step 4 (Submit via Submission CLI):
-     Execute the centralized submission gate via your native exec tool:
+   - Step 3 (Run Verification & Generate Evidence):
+     * Check the challenge specification or repository scripts for the required tests:
+       - If a challenge check script exists: `node challenge/<KEY>-run-checks.mjs`
+       - If test suite exists: run the project's test command (e.g. `pnpm test`, `npm test`, `pytest`).
+     * If UI screenshots are required by the challenge:
+       - Acquire the server lock via `resource-board.mjs acquire web-server --task <KEY>`.
+       - Start the dev server in the background (or use `evidence-runner.mjs run-with-server`).
+       - Capture the required screenshots using:
+         `node D:/mtm/CPL/team-sdlc-pack/scripts/evidence-runner.mjs screenshot --url <url> --output answers/<KEY>/evidence/<filename>.png`
+       - Stop the server and release the lock: `resource-board.mjs release web-server --task <KEY>`.
+     * Ensure all required files exist in `answers/<KEY>/evidence/`.
+   - Step 4 (MANDATORY SUBMISSION VIA submit-cli.mjs):
+     You MUST execute the submission CLI yourself using your native exec tool:
      `node D:/mtm/CPL/team-sdlc-pack/bin/submit-cli.mjs --backlog <KEY> --branch task/<KEY> --worktree <worktreePath>`
-     The CLI validates submit.json against the schema, confirms required MVS evidence exists, commits changes, merges cleanly, pushes to origin, submits to Game Master, and removes the worktree.
+     Do NOT ask `/root` to submit for you. Centralized submission does not exist. Even if some tests are marked PARTIAL, you MUST invoke `submit-cli.mjs` directly. NEVER submit status "BLOCKED" (submitting BLOCKED yields 0 points on Game Master; use PARTIAL or DONE instead). Target elapsed time is < 4 minutes; never spend 15+ minutes on manual browser tests if automated tests pass.
    - Step 5 (Notify Root & Terminate):
-     Send a completion message to `/root`:
-     `tools.send_message({ target: "/root", message: JSON.stringify({ type: "TASK_COMPLETED", backlogItemKey: "<KEY>" }) })`
+     ONLY AFTER submit-cli.mjs has completed, send a completion notification to `/root` using top-level `send_message`:
+     `send_message({ target: "/root", message: JSON.stringify({ type: "TASK_COMPLETED", backlogItemKey: "<KEY>" }) })`
      Output a concise completion summary and finish.
 """

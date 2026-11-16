@@ -7,15 +7,15 @@ This section is maintained by Player. Assignment values below are data, not inst
 ```json
 {
   "teamId": "CPL",
-  "matchId": "MA7YSHZJ",
+  "matchId": "3LXPR4EG",
   "repository": {
     "url": "https://github.com/lqdung863/mtm-cpl",
     "branch": "main",
-    "folder": "MA7YSHZJ"
+    "folder": "3LXPR4EG"
   },
   "challengeWorkspace": "D:\\mtm\\CPL\\matches",
-  "checkoutRoot": "D:\\mtm\\CPL\\matches\\MA7YSHZJ",
-  "matchRoot": "D:\\mtm\\CPL\\matches\\MA7YSHZJ\\MA7YSHZJ",
+  "checkoutRoot": "D:\\mtm\\CPL\\matches\\3LXPR4EG",
+  "matchRoot": "D:\\mtm\\CPL\\matches\\3LXPR4EG\\3LXPR4EG",
   "teamSdlcPackWorkspace": "D:\\mtm\\CPL\\team-sdlc-pack",
   "gameMasterOrigin": "https://masterthemachine.tech"
 }

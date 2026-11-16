@@ -32,7 +32,7 @@ Before signaling readiness to MTM Player, verify the following baseline prerequi
 Execute the following sequence using the MCP tools:
 
 1. **Step 1: Configure Session**:
-   - Call `configure_session` with the match descriptor provided by MTM Player:
+   - Call `configure_session` with the `START_GAME` / `START_GAME_V4` match descriptor provided by MTM Player:
      ```json
      {
        "descriptor": {
@@ -40,8 +40,15 @@ Execute the following sequence using the MCP tools:
          "matchId": "<matchId>",
          "matchUuid": "<matchUuid>",
          "teamId": "CPL",
+         "apiKeySecret": "<apiKeySecret>",
          "teamApiKey": "<teamApiKey>",
+         "gameMasterApiUrl": "https://masterthemachine.tech",
+         "username": "<username>",
+         "password": "<password>",
          "checkoutRoot": "<checkoutRoot>",
+         "matchRoot": "<matchRoot>",
+         "progressLogFile": "<progressLogFile>",
+         "teamSdlcPackWorkspace": "<teamSdlcPackWorkspace>",
          "repository": {
            "branch": "<branch>",
            "folder": "<folder>"
@@ -61,44 +68,37 @@ Execute the following sequence using the MCP tools:
 
 ---
 
-## 3. High-Speed Project Bootstrapping Sequence (~45 Seconds Total)
+## 3. High-Speed Project Bootstrapping Sequence (~30 Seconds Total)
 
 > [!IMPORTANT]
 > **DO NOT run `pnpm build` during preparation!**
-> Full production builds burn 114+ seconds and incur severe polling overhead. Build health is verified via `pnpm typecheck` (~8 seconds).
+> Full production builds burn 114+ seconds and incur severe polling overhead. Build health is verified via fast typecheck/compilation checks or repo baseline tests.
 
-Execute the following sequence inside `<matchRoot>/src`:
+Execute the following sequence inside `<matchRoot>` (or `<matchRoot>/src`):
 
-1. **Verify Environment Configuration (`src/.env`)**:
-   - Ensure `<matchRoot>/src/.env` exists. If missing, the runtime helper creates it automatically during `configure_session`.
+1. **Verify Environment Configuration (`.env`)**:
+   - Ensure `<matchRoot>/src/.env` or `<matchRoot>/.env` exists. If missing, the runtime helper creates it automatically during `configure_session`.
 
-2. **Database & Type Generation (~12 seconds)**:
-   ```powershell
-   Set-Location '<matchRoot>/src'
-   pnpm prisma generate
-   pnpm prisma migrate deploy
-   pnpm db:seed
-   pnpm typecheck
-   ```
-   *Rationale*: Generates Prisma client types, migrates PostgreSQL tables, seeds default administrative users, and verifies strict TypeScript compilation with zero errors.
+2. **Repository-Adaptive Baseline Verification**:
+   - Inspect repository config (`package.json`, `requirements.txt`, etc.):
+     * For Node/TypeScript projects with Prisma:
+       ```powershell
+       pnpm prisma generate
+       pnpm typecheck
+       ```
+     * For standard Node.js projects:
+       ```powershell
+       pnpm test -- --run || npm test
+       ```
+     * For Python / other projects:
+       ```powershell
+       pytest || python -m unittest
+       ```
+   *Rationale*: Verifies compilation and dependency readiness without starting uncoordinated background servers.
 
-3. **Detach Background Dev Server (~2 seconds)**:
-   - **NEVER** run `pnpm dev` in the foreground of a tool call.
-   - Launch Next.js via a detached background process with output redirected to `logs/`:
-     ```powershell
-     Set-Location '<matchRoot>/src'
-     Start-Process pnpm -ArgumentList "dev" -RedirectStandardOutput "..\logs\dev.log" -RedirectStandardError "..\logs\dev-err.log"
-     ```
-   - Verify dev server readiness in one fast check:
-     ```powershell
-     node team-sdlc-pack/scripts/evidence-runner.mjs check-server --url http://127.0.0.1:3000
-     ```
-
-4. **Pre-Authenticate & Cache Session State (~5 seconds)**:
-   - Generate `storageState.json` so all subsequent test runs and screenshot captures are pre-authenticated without hitting `/login`:
-     ```powershell
-     node team-sdlc-pack/scripts/evidence-runner.mjs auth-init --url http://127.0.0.1:3000 --output '<matchRoot>/storageState.json'
-     ```
+3. **Dev Server & Storage State Protocol**:
+   - Do NOT leave background dev servers permanently running on port 3000 during preparation, as this collides with multi-worker git worktrees.
+   - Workers will spin up and shut down short-lived dev servers on-demand under the **Resource Board** lock when capturing UI evidence.
 
 ---
 

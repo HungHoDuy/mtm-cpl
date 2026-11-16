@@ -68,6 +68,7 @@ const TOOLS_DEFINITIONS = [
       properties: {}
     }
   },
+  /* Deprecated / Automated in prepare_task_workspace: start_work commented out to prevent manual orchestrator invocation
   {
     name: 'start_work',
     description: 'Declares active work on a backlog item, fetches verification scenarios and templates, creates answers folders, and sets task to IN_PROGRESS.',
@@ -82,6 +83,8 @@ const TOOLS_DEFINITIONS = [
       required: ['backlogItemKey']
     }
   },
+  */
+  /* Deprecated / Workers submit via CLI: submit_work commented out so root orchestrator does not invoke as fallback
   {
     name: 'submit_work',
     description: 'Auto-sanitizes evidence, auto-generates/validates submit.json, commits changes, verifies git push, submits final answer to Game Master, and emits dual telemetry (SUBMITTED + BACKLOG_TESTS with status: PASSED).',
@@ -118,6 +121,8 @@ const TOOLS_DEFINITIONS = [
       required: ['backlogItemKey']
     }
   },
+  */
+  /* Deprecated: Subagents submit directly via submit-cli.mjs in worktrees
   {
     name: 'pack_submission',
     description: 'Scans evidence, repairs space-delimited paths, auto-generates compliant submit.json and validates against competition schema without calling Game Master.',
@@ -141,6 +146,7 @@ const TOOLS_DEFINITIONS = [
       required: ['backlogItemKey']
     }
   },
+  */
   {
     name: 'report_progress',
     description: 'Appends a formal progress event conforming to progress-event.schema.json to the progress NDJSON log.',
@@ -170,6 +176,7 @@ const TOOLS_DEFINITIONS = [
       required: ['type']
     }
   },
+  /* Deprecated / Superseded: sync_cluster handles long-polling and cluster state updates
   {
     name: 'wait_for_update',
     description: 'Waits boundedly for new backlog items or match changes without consuming tokens.',
@@ -184,6 +191,7 @@ const TOOLS_DEFINITIONS = [
       }
     }
   },
+  */
   {
     name: 'get_test_data',
     description: 'Retrieves official QA test data fixture for a backlog item from the company QA store.',
@@ -192,7 +200,7 @@ const TOOLS_DEFINITIONS = [
       properties: {
         backlogItemKey: {
           type: 'string',
-          description: 'Backlog item key (e.g. BUG-02, CR-01)'
+          description: 'Backlog item key (e.g. BUG-02, CR-01, TASK-01)'
         }
       },
       required: ['backlogItemKey']
@@ -200,33 +208,33 @@ const TOOLS_DEFINITIONS = [
   },
   {
     name: 'kb_search',
-    description: 'Searches Solova internal finance knowledge base for accounting, currency minor units, and CSV export standards.',
+    description: 'Searches the company internal knowledge base for runbooks, architecture docs, domain policies, and standards.',
     inputSchema: {
       type: 'object',
       properties: {
         query: {
           type: 'string',
-          description: 'Search query keyword (e.g. "currency decimal", "KB-EXP-01", "index")'
+          description: 'Search query keyword or topic (e.g. "architecture", "policy", "index")'
         }
       }
     }
   },
   {
     name: 'search_logs',
-    description: 'Searches company microservice observability logs (deploy, status-cache, payment-api, reminder-worker, support-desk).',
+    description: 'Searches company service and observability logs. Omit service initially to inspect logs across all services.',
     inputSchema: {
       type: 'object',
       properties: {
         service: {
           type: 'string',
-          description: 'Target microservice name (e.g. deploy, reminder-worker, status-cache, payment-api, support-desk)'
+          description: 'Optional target service name filter (omit to search all services)'
         },
         query: {
           type: 'string',
-          description: 'Optional query string or filter regex'
+          description: 'Optional query string or filter text'
         }
       },
-      required: ['service']
+      required: []
     }
   },
   {
@@ -261,6 +269,7 @@ const TOOLS_DEFINITIONS = [
       }
     }
   },
+  /* Subagents submit via CLI (submit-cli.mjs): submit_task commented out from MCP tool list to prevent root fallback
   {
     name: 'submit_task',
     description: 'Centralized, mutex-locked submission gate for autonomous task workers or orchestrator. Auto-sanitizes submit.json against dynamic schema, commits worktree changes, merges into main, pushes to remote origin, posts to Game Master API, and cleans up the worktree.',
@@ -297,6 +306,7 @@ const TOOLS_DEFINITIONS = [
       required: ['backlogItemKey']
     }
   }
+  */
 ];
 
 async function handleToolCall(name, args = {}) {

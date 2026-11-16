@@ -5,12 +5,14 @@
  * Pure Node.js Standard Library (0 external npm dependencies, $0 credit usage)
  */
 
-import { spawn } from 'node:child_process';
+import { spawn, execSync } from 'node:child_process';
 import readline from 'node:readline';
 import fs from 'node:fs';
 import path from 'node:path';
 import http from 'node:http';
 import { fileURLToPath } from 'node:url';
+import { ResourceBoard } from '../scripts/resource-board.mjs';
+import { RuntimeSession } from '../src/runtime-session.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -100,22 +102,32 @@ async function runTests() {
     console.log('\n--- Test 3: List Tools (tools/list) ---');
     const listRes = await sendRequest('tools/list');
     const tools = listRes.result?.tools || [];
-    assert(tools.length >= 10, `Server exposed at least 10 tools (found ${tools.length})`);
+    assert(tools.length === 9, `Server exposed exactly 9 active swarm tools (found ${tools.length})`);
 
     const expectedTools = [
       'configure_session',
       'login_match',
       'refresh_match',
-      'start_work',
-      'submit_work',
-      'pack_submission',
       'report_progress',
-      'wait_for_update',
+      'sync_cluster',
+      'prepare_task_workspace',
       'get_test_data',
-      'kb_search'
+      'kb_search',
+      'search_logs'
     ];
     for (const t of expectedTools) {
-      assert(tools.some(x => x.name === t), `Tool '${t}' is declared in tools/list`);
+      assert(tools.some(x => x.name === t), `Active tool '${t}' is declared in tools/list`);
+    }
+
+    const commentedOutTools = [
+      'start_work',
+      'submit_work',
+      'submit_task',
+      'pack_submission',
+      'wait_for_update'
+    ];
+    for (const t of commentedOutTools) {
+      assert(!tools.some(x => x.name === t), `Deprecated tool '${t}' is commented out / omitted from tools/list`);
     }
 
     // Test 4: tools/call configure_session
@@ -722,6 +734,223 @@ async function runTests() {
     assert(confLogData.progressLogFile === customLogFile, `progressLogFile honored explicit path (${confLogData.progressLogFile})`);
     assert(fs.existsSync(customLogFile), `Custom log file created at: ${customLogFile}`);
     fs.rmSync(customLogFile, { force: true });
+
+    // Test 18: ResourceBoard Mutex, Waiting Queue, and Auto-Recovery
+    console.log('\n--- Test 18: ResourceBoard Mutex, Waiting Queue, and Auto-Recovery ---');
+    const testBoardPath = path.resolve(packRoot, 'tmp_test_resource_board.json');
+    if (fs.existsSync(testBoardPath)) fs.unlinkSync(testBoardPath);
+
+    const boardA = new ResourceBoard(testBoardPath);
+    const boardB = new ResourceBoard(testBoardPath);
+
+    // 1. Initial status should be FREE
+    const initialStatus = boardA.getStatus('web-server');
+    assert(initialStatus.status === 'FREE', 'Initial status of resource is FREE');
+
+    // 2. Worker A acquires 'web-server'
+    await boardA.acquire('web-server', { workerId: 'worker-A', task: 'TASK-01', ttlMs: 1500 });
+    const busyStatus = boardA.getStatus('web-server');
+    assert(busyStatus.status === 'BUSY', 'Resource status is BUSY after acquisition');
+    assert(busyStatus.claimedBy === 'worker-A', 'Resource claimedBy is worker-A');
+
+    // 3. Worker B acquires with queue / TTL auto-recovery
+    const queueStart = Date.now();
+    await boardB.acquire('web-server', { workerId: 'worker-B', task: 'TASK-02', ttlMs: 3000, waitTimeoutMs: 5000 });
+    const queueElapsed = Date.now() - queueStart;
+    assert(queueElapsed >= 1400, `Worker B waited for expired lock (~${queueElapsed}ms >= 1400ms)`);
+    const acquiredByB = boardB.getStatus('web-server');
+    assert(acquiredByB.claimedBy === 'worker-B', 'Resource auto-recovered and claimed by worker-B');
+
+    // 4. Worker B releases 'web-server'
+    boardB.release('web-server', { workerId: 'worker-B', task: 'TASK-02' });
+    const releasedStatus = boardB.getStatus('web-server');
+    assert(releasedStatus.status === 'FREE', 'Resource released back to FREE');
+
+    // 5. execWithLock runs child command and guarantees release
+    const execExit = await boardA.execWithLock('database', { workerId: 'worker-A', task: 'TASK-01' }, 'node -e "process.exit(0)"');
+    assert(execExit === 0, 'execWithLock executed child command successfully');
+    const dbStatus = boardA.getStatus('database');
+    assert(dbStatus.status === 'FREE', 'execWithLock guaranteed cleanup to FREE in finally block');
+
+    fs.rmSync(testBoardPath, { force: true });
+    const internalLock = path.resolve(path.dirname(testBoardPath), 'resource-board.internal.lock');
+    if (fs.existsSync(internalLock)) fs.unlinkSync(internalLock);
+
+    // Test 19: START_GAME fields, RSC initialProjection extraction, search_logs optional service, submission receipt.id & 409 CLOSED handling
+    console.log('\n--- Test 19: RSC Extraction, Optional search_logs, Receipt ID & 409 CLOSED ---');
+    const t19MatchId = `TEST_T19_${Date.now().toString(36).toUpperCase()}`;
+    const t19Uuid = '11111111-2222-4333-8444-555555555555';
+    const t19Root = path.resolve('d:/mtm/scratch/test_mcp_t19');
+    if (fs.existsSync(t19Root)) fs.rmSync(t19Root, { recursive: true, force: true });
+    const t19Remote = path.resolve(t19Root, 'remote.git');
+    const t19Repo = path.resolve(t19Root, 'repo');
+    const t19Workspace = path.resolve(t19Root, 'workspace');
+    const t19ProgressLog = path.resolve(t19Root, 'logs', `${t19MatchId}.progress.ndjson`);
+    fs.mkdirSync(t19Remote, { recursive: true });
+    fs.mkdirSync(t19Workspace, { recursive: true });
+
+    let lastSearchLogsArgs = null;
+    const task01Md = '# TASK-01 Fix Cache\n\nHandle concurrent reads cleanly.\n';
+    const mdHexLen = Buffer.byteLength(task01Md, 'utf8').toString(16);
+    const t19Projection = {
+      match: { id: t19Uuid },
+      backlog: [
+        {
+          key: 'TASK-01',
+          title: 'Fix Cache',
+          status: 'OPEN',
+          points: 200,
+          deadlineMinutes: 15,
+          descriptionMd: '$a'
+        },
+        {
+          key: 'TASK-02',
+          title: 'Closed Item',
+          status: 'OPEN',
+          points: 100,
+          deadlineMinutes: 10
+        }
+      ]
+    };
+    const t19RscPayload = `a:T${mdHexLen},${task01Md}0:["$","main",null,{"initialProjection":${JSON.stringify(t19Projection)}}]\n`;
+    const t19RscHtml = `<!doctype html><html><body><script>self.__next_f.push([1,${JSON.stringify(t19RscPayload)}])</script></body></html>`;
+
+    const t19Server = http.createServer((req, res) => {
+      let body = '';
+      req.on('data', chunk => { body += chunk; });
+      req.on('end', () => {
+        if (req.method === 'GET' && req.url === `/match/${t19MatchId}`) {
+          res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+          res.end(t19RscHtml);
+          return;
+        }
+        if (req.method === 'POST' && req.url === `/api/v1/mcp/${t19MatchId}`) {
+          const parsed = JSON.parse(body || '{}');
+          if (parsed.params?.name === 'search_logs') {
+            lastSearchLogsArgs = parsed.params.arguments || {};
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+              jsonrpc: '2.0',
+              id: parsed.id,
+              result: { content: [{ type: 'text', text: JSON.stringify({ logs: [{ service: 'web', message: 'timeout occurred' }] }) }] }
+            }));
+            return;
+          }
+        }
+        if (req.method === 'POST' && req.url === `/api/v1/matches/${t19Uuid}/submissions`) {
+          const parsed = JSON.parse(body || '{}');
+          if (parsed.backlogItemKey === 'TASK-01') {
+            res.writeHead(201, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ submission: { id: 'sub_rcpt_t19_1', status: 'SUBMITTED' } }));
+            return;
+          }
+          if (parsed.backlogItemKey === 'TASK-02') {
+            res.writeHead(409, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ code: 'BACKLOG_ITEM_CLOSED', error: 'Backlog item is closed' }));
+            return;
+          }
+        }
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Not found', url: req.url }));
+      });
+    });
+
+    await new Promise(resolve => t19Server.listen(0, '127.0.0.1', resolve));
+    const t19Port = t19Server.address().port;
+    const t19Url = `http://127.0.0.1:${t19Port}`;
+
+    try {
+      execSync(`git init --bare "${t19Remote}"`, { stdio: 'ignore' });
+      execSync(`git clone "${t19Remote}" "${t19Repo}"`, { stdio: 'ignore' });
+      execSync(`git -C "${t19Repo}" checkout -b main`, { stdio: 'ignore' });
+      execSync(`git -C "${t19Repo}" config user.name "Test Runner"`, { stdio: 'ignore' });
+      execSync(`git -C "${t19Repo}" config user.email "test@example.com"`, { stdio: 'ignore' });
+
+      fs.mkdirSync(path.resolve(t19Repo, 'challenge'), { recursive: true });
+      fs.mkdirSync(path.resolve(t19Repo, 'src'), { recursive: true });
+      fs.mkdirSync(path.resolve(t19Repo, 'answers', 'TASK-01', 'evidence'), { recursive: true });
+      fs.mkdirSync(path.resolve(t19Repo, 'answers', 'TASK-02', 'evidence'), { recursive: true });
+      for (const k of ['TASK-01', 'TASK-02']) {
+        fs.writeFileSync(path.resolve(t19Repo, 'challenge', `${k}-submit.schema.json`), JSON.stringify({
+          type: 'object',
+          properties: {
+            schemaVersion: { const: 1 },
+            backlogId: { const: k },
+            status: { enum: ['DONE', 'PARTIAL', 'BLOCKED'] },
+            evidenceFiles: { type: 'array' },
+            testResults: { type: 'array' },
+            engineeringRecord: { type: 'object' }
+          }
+        }, null, 2), 'utf8');
+        fs.writeFileSync(path.resolve(t19Repo, 'answers', k, 'evidence', 'verify.log'), `${k} ok`, 'utf8');
+      }
+      execSync(`git -C "${t19Repo}" add .`, { stdio: 'ignore' });
+      execSync(`git -C "${t19Repo}" commit -m "initial"`, { stdio: 'ignore' });
+      execSync(`git -C "${t19Repo}" push -u origin main`, { stdio: 'ignore' });
+
+      const t19ConfRes = await sendRequest('tools/call', {
+        name: 'configure_session',
+        arguments: {
+          descriptor: {
+            matchId: t19MatchId,
+            apiKeySecret: 'secret_t19_key',
+            gameMasterApiUrl: t19Url,
+            checkoutRoot: t19Repo,
+            matchRoot: t19Repo,
+            progressLogFile: t19ProgressLog,
+            teamSdlcPackWorkspace: t19Workspace,
+            assignedBranch: 'main'
+          }
+        }
+      });
+      assert(!t19ConfRes.isError, 'Test 19 configure_session accepts apiKeySecret, gameMasterApiUrl, and progressLogFile');
+
+      const t19RefRes = await sendRequest('tools/call', {
+        name: 'refresh_match',
+        arguments: {}
+      });
+      assert(!t19RefRes.isError, 'Test 19 refresh_match parses Next.js RSC payload');
+      const t19RefData = JSON.parse(t19RefRes.result.content[0].text);
+      assert(t19RefData.matchUuid === t19Uuid, `refreshMatch extracted RSC matchUuid (${t19RefData.matchUuid})`);
+      const t19MdPath = path.resolve(t19Repo, 'challenge', 'TASK-01.md');
+      assert(fs.existsSync(t19MdPath) && fs.readFileSync(t19MdPath, 'utf8') === task01Md, 'refreshMatch materialized RSC descriptionMd to challenge/TASK-01.md');
+
+      const t19LogsRes = await sendRequest('tools/call', {
+        name: 'search_logs',
+        arguments: { query: 'timeout' }
+      });
+      assert(!t19LogsRes.isError, 'search_logs succeeds when service is omitted');
+      assert(lastSearchLogsArgs && !('service' in lastSearchLogsArgs) && lastSearchLogsArgs.query === 'timeout', 'search_logs omits service parameter when not provided');
+      const t19LogsParsed = JSON.parse(t19LogsRes.result.content[0].text);
+      assert(Array.isArray(t19LogsParsed.logs) && t19LogsParsed.logs.length === 1, 'search_logs returns parsed JSON content');
+
+      const t19Session = new RuntimeSession({ isTestSession: true });
+      await t19Session.configureSession({
+        matchId: t19MatchId,
+        matchUuid: t19Uuid,
+        apiKeySecret: 'secret_t19_key',
+        gameMasterApiUrl: t19Url,
+        checkoutRoot: t19Repo,
+        matchRoot: t19Repo,
+        progressLogFile: t19ProgressLog,
+        teamSdlcPackWorkspace: t19Workspace,
+        assignedBranch: 'main'
+      });
+
+      const subOk = await t19Session.submitTask({ backlogItemKey: 'TASK-01' });
+      assert(subOk.success === true && subOk.receiptId === 'sub_rcpt_t19_1' && subOk.status === 'SUBMITTED', `submitTask extracted submission.id receiptId (${subOk.receiptId})`);
+
+      const subClosed = await t19Session.submitTask({ backlogItemKey: 'TASK-02' });
+      assert(subClosed.success === false && subClosed.closed === true && subClosed.status === 'CLOSED', 'submitTask handled HTTP 409 BACKLOG_ITEM_CLOSED cleanly');
+      assert(t19Session.submittedBacklogs.has('TASK-02'), 'Closed TASK-02 added to submittedBacklogs');
+      const t19Events = fs.readFileSync(t19ProgressLog, 'utf8').trim().split('\n').map(l => JSON.parse(l));
+      assert(t19Events.some(e => e.type === 'BACKLOG_STATUS' && e.backlogId === 'TASK-02' && e.status === 'BLOCKED'), 'HTTP 409 BACKLOG_ITEM_CLOSED emitted BACKLOG_STATUS: BLOCKED');
+    } finally {
+      t19Server.close();
+      if (fs.existsSync(t19Root)) {
+        try { fs.rmSync(t19Root, { recursive: true, force: true }); } catch (_) {}
+      }
+    }
 
   } finally {
     child.kill();

@@ -38,11 +38,8 @@ console.log('======================================================\n');
 console.log('--- Test Suite 1: Specialized Agent Profiles ---');
 
 const expectedAgents = [
-  { file: 'agents/team-orchestrator.toml', expectedName: 'team_orchestrator', requiredKeywords: ['start_work', 'submit_work', '8 minutes'] },
-  { file: 'agents/team-business-analyst.toml', expectedName: 'team_business_analyst', requiredKeywords: ['minimumVerificationScenarios', 'submitTemplate', 'plan.md'] },
-  { file: 'agents/team-developer.toml', expectedName: 'team_developer', requiredKeywords: ['matchRoot', 'TDD', 'Minimal Diff'] },
-  { file: 'agents/team-tester.toml', expectedName: 'team_tester', requiredKeywords: ['code 0', 'evidence', 'submit.json'] },
-  { file: 'agents/team-cyber-security.toml', expectedName: 'team_cyber_security', requiredKeywords: ['OWASP', 'Secret Leakage', 'Incident Response'] }
+  { file: 'agents/team-orchestrator.toml', expectedName: 'team_orchestrator', requiredKeywords: ['sync_cluster', 'prepare_task_workspace', 'team_task_worker'] },
+  { file: 'agents/team-task-worker.toml', expectedName: 'team_task_worker', requiredKeywords: ['worktreePath', 'submit-cli.mjs', 'resource-board.mjs'] }
 ];
 
 for (const agent of expectedAgents) {

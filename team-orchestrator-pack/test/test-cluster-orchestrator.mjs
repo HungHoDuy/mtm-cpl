@@ -13,7 +13,7 @@ async function runTests() {
   console.log('  Testing Multi-Worker Swarm & Dynamic Schema Gate    ');
   console.log('======================================================');
 
-  const session = new RuntimeSession();
+  const session = new RuntimeSession({ isTestSession: true });
   const testRoot = path.resolve('d:/mtm/scratch/test_cluster_env');
   if (fs.existsSync(testRoot)) {
     try {
@@ -80,6 +80,9 @@ async function runTests() {
     }
   };
   fs.writeFileSync(path.resolve(testRoot, 'challenge', 'BUG-09-submit.schema.json'), JSON.stringify(bug09Schema, null, 2), 'utf8');
+  fs.mkdirSync(path.resolve(testRoot, 'src', 'tests'), { recursive: true });
+  fs.writeFileSync(path.resolve(testRoot, 'src', 'tests', '.gitkeep'), '', 'utf8');
+  fs.writeFileSync(path.resolve(testRoot, 'challenge', 'TASK-08-mvs.test.ts'), 'export const mvs = true;\n', 'utf8');
 
   // Initial git commit
   execSync(`git -C "${testRoot}" add .`, { stdio: 'ignore' });
@@ -141,6 +144,9 @@ async function runTests() {
   assert.ok(fs.existsSync(path.join(wtResult.worktreePath, 'src', 'node_modules')), 'node_modules junction must be linked into worktree');
   assert.ok(fs.existsSync(path.join(wtResult.worktreePath, 'src', '.env')), '.env must be copied into worktree');
   assert.ok(fs.existsSync(path.join(wtResult.worktreePath, 'answers', 'TASK-08', 'evidence')), 'evidence dir must exist in worktree');
+  assert.ok(!fs.existsSync(path.join(wtResult.worktreePath, 'src', 'TASK-08-submit.json')), 'TASK-08-submit.json must NOT be copied into src/');
+  assert.ok(!fs.existsSync(path.join(wtResult.worktreePath, 'src', 'TASK-08-submit.schema.json')), 'TASK-08-submit.schema.json must NOT be copied into src/');
+  assert.ok(fs.existsSync(path.join(wtResult.worktreePath, 'src', 'tests', 'task-08-mvs.test.ts')), 'TASK-08-mvs.test.ts must be linked to src/tests/task-08-mvs.test.ts');
   assert.ok(session.clusterWorkers.has('TASK-08'), 'TASK-08 must be registered in clusterWorkers');
   console.log('  [✓] Passed! Worktree created with directory junctions, .env, and cluster registration.');
 

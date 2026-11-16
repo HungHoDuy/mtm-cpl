@@ -25,16 +25,18 @@ Provide deterministic, autonomous recovery mechanisms for runtime faults, networ
 
 ## 2. Idempotent Submission Recovery Protocol
 
-When an HTTP timeout or network disconnect occurs while calling `submit_work`:
+When an HTTP timeout or network disconnect occurs while submitting via `submit-cli.mjs`:
 
-1. **Do NOT generate a new `Idempotency-Key`**:
-   - The MCP helper tracks `idempotencyMap` in memory keyed by `backlogItemKey`.
-2. **Re-invoke `submit_work`**:
-   - Call `submit_work({ backlogItemKey: "<backlogId>" })`.
-   - The helper reuses the exact same UUID `Idempotency-Key` and `clientSubmissionId`.
+1. **Idempotency Protection**:
+   - `submit-cli.mjs` and `RuntimeSession` track idempotency keys in memory and `.mtm/` keyed by `backlogItemKey`.
+2. **Re-invoke `submit-cli.mjs`**:
+   - Re-run:
+     ```powershell
+     node D:/mtm/CPL/team-sdlc-pack/bin/submit-cli.mjs --backlog <KEY> --branch task/<KEY> --worktree <worktreePath>
+     ```
+   - The submission runner reuses the verified commit revision and submission payload.
 3. **Verify Response**:
-   - If the Game Master already accepted the submission during the previous attempt, it returns the existing `receiptId` with HTTP 200.
-   - If the previous attempt never reached the server, it processes normally with no duplicate penalty.
+   - If the Game Master already accepted the submission during the previous attempt, it returns the existing `receiptId` with HTTP 200 without duplicate grading penalties.
 
 ---
 
@@ -101,8 +103,8 @@ When server state reconciliation confirms the current backlog item is `CLOSED`, 
    **CRITICAL**: DO NOT append manually to `progress.ndjson` using PowerShell! Always use `report_progress`.
 2. **DO NOT STOP OR EXIT YOUR TURN**. Leaving the turn idle causes MTM Player to interpret the orchestrator as crashed and trigger an endless restart loop.
 3. Immediately transition to `team-orchestrator` active gameplay:
-   - Call `refresh_match()`.
-   - Inspect open items and select the highest-value `OPEN` item (e.g. `CR-01` with 300 pts, or `BUG-01` with 200 pts).
-   - Call `start_work({ backlogItemKey: "<selectedItem>" })` in the **exact same turn**.
-   - Proceed through Stage 2 (Plan & Baseline Evidence) and Stage 3 (Implementation) without pausing.
+   - Call `sync_cluster({ waitTimeoutMs: 15000 })`.
+   - Inspect `unassignedTasks` and select open items (prioritizing urgent PIs and highest-value open items).
+   - Call `prepare_task_workspace({ backlogItemKeys: unassignedTasks.map(t => t.key) })` and spawn `team_task_worker` agents via `spawn_agent` in the **exact same turn**.
+   - Continue the orchestrator monitoring loop until workers submit via `submit-cli.mjs`.
 
